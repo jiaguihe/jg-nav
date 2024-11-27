@@ -9,12 +9,14 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import * as bcrypt from 'bcryptjs';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    private jwtService: JwtService,
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
@@ -73,5 +75,10 @@ export class UserService {
       return user;
     }
     throw new UnauthorizedException('用户名或密码错误');
+  }
+
+  async generateJwt(user: User): Promise<string> {
+    const payload = { username: user.username, id: user.id };
+    return this.jwtService.sign(payload);
   }
 }

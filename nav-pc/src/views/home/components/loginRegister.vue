@@ -188,7 +188,7 @@ const showPrivacyPolicy = () => {
 };
 
 // 定义 Emits
-const emit = defineEmits(['update:visible']);
+const emit = defineEmits(['update:visible', 'update:cookie']);
 
 // 关闭前的处理
 const handleClose = (done: Function) => {
@@ -234,6 +234,8 @@ const handleConfirm = () => {
               message: '登录成功',
               type: 'success'
             });
+            localStorage.setItem('token', res.data.token);
+            emit('update:cookie');
             emit('update:visible', false); // 关闭对话框
           }
         });

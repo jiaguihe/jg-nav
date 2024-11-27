@@ -124,16 +124,25 @@ export class UserController {
         updateUserDto.password,
       );
 
-      // 设置cookie
-      res.cookie('username', user.username, { httpOnly: true });
+      const jwt = await this.userService.generateJwt(user);
 
-      return res
-        .status(HttpStatus.OK)
-        .json(new ResponseDto(0, '登录成功', user));
+      // 设置cookie
+      res.cookie(
+        'userInfo',
+        JSON.stringify({
+          id: user.id,
+          username: user.username,
+        }),
+        { maxAge: 7 * 24 * 60 * 60 * 1000 },
+      );
+
+      return res.status(HttpStatus.OK).json(
+        new ResponseDto(0, '登录成功', {
+          token: jwt,
+        }),
+      );
     } catch (error) {
-      return res
-        .status(HttpStatus.UNAUTHORIZED)
-        .json(new ResponseDto(-1, error.message, error));
+      return res.json(new ResponseDto(-1, error.message, error));
     }
   }
 }
