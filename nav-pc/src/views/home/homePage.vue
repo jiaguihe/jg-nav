@@ -35,6 +35,7 @@
         </el-dropdown>
       </el-link>
     </div>
+    <ShowLinks></ShowLinks>
     <LoginRegister
       title="登录"
       :visible="dialogVisible"
@@ -51,6 +52,7 @@ import 'dayjs/locale/zh-cn';
 import { getAllUser } from '@/services/userService';
 import LoginRegister from './components/loginRegister.vue';
 import Cookies from 'js-cookie';
+import ShowLinks from './components/showLinks.vue';
 
 const nowDate = ref(dayjs());
 const dialogVisible = ref(false);

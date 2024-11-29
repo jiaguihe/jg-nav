@@ -6,7 +6,7 @@ export class Link {
   id: number;
 
   @Column()
-  username: string;
+  userId: number;
 
   @Column()
   url: string;

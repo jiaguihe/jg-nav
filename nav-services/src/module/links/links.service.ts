@@ -23,16 +23,16 @@ export class LinksService {
     return await this.linkRepository.find(); // 查找所有记录
   }
 
-  // 查找单个 link
-  async findOne(id: number): Promise<Link> {
-    const link = await this.linkRepository.findOne({ where: { id } }); // 查找指定 id 的 link
+  // 查找用户所有 link
+  async findOne(userId: number): Promise<Link[]> {
+    const link = await this.linkRepository.find({ where: { userId } }); // 查找指定 userId 的 links
     return link;
   }
 
   // 更新现有的 link
   async update(id: number, updateLinkDto: UpdateLinkDto): Promise<Link> {
     return await this.linkRepository.save({
-      id: id,
+      id,
       ...updateLinkDto,
     });
   }

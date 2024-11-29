@@ -98,7 +98,7 @@ interface RuleForm {
   password: string;
 }
 
-const props = defineProps({
+defineProps({
   title: { type: String, required: true },
   visible: { type: Boolean, required: true }
 });
@@ -203,7 +203,7 @@ const updateVisible = (newVisible: boolean) => {
 
 // 注册按钮点击处理
 const handleCancel = () => {
-  formRef.value?.validate((valid, fields) => {
+  formRef.value?.validate((valid) => {
     if (!isAgreed.value) {
       showPop.value = true;
     } else {
@@ -223,7 +223,7 @@ const handleCancel = () => {
 
 // 确认按钮点击处理
 const handleConfirm = () => {
-  formRef.value?.validate((valid, fields) => {
+  formRef.value?.validate((valid) => {
     if (!isAgreed.value) {
       showPop.value = true;
     } else {

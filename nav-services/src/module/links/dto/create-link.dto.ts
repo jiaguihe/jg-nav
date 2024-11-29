@@ -1,5 +1,5 @@
 export class CreateLinkDto {
-  username: string;
+  userId: number;
   url: string;
   description: string;
 }

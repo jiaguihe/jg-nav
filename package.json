@@ -2,7 +2,8 @@
   "name": "jg-nav",
   "version": "1.0.0",
   "scripts": {
-    "start": "start pnpm -C ./nav-services start:dev && start pnpm -C ./nav-pc start"
+    "start": "start pnpm -C ./nav-services start:dev && start pnpm -C ./nav-pc start",
+    "build": "start pnpm -C ./nav-services build && start pnpm -C ./nav-pc build"
   },
   "keywords": [],
   "author": "",

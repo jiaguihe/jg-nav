@@ -42,13 +42,15 @@ export class LinksController {
   }
 
   // 获取单个地址
-  @Get(':id')
+  @Get(':userId')
   @ApiOperation({ summary: '获取指定 ID 的地址信息' })
   @ApiResponse({ status: 200, description: '返回指定地址信息' })
   @ApiResponse({ status: 404, description: '地址未找到' })
   @ApiResponse({ status: 500, description: '服务器错误' })
-  async findOne(@Param('id') id: string): Promise<ResponseDto<CreateLinkDto>> {
-    const link = await this.linksService.findOne(+id);
+  async findOne(
+    @Param('userId') userId: number,
+  ): Promise<ResponseDto<CreateLinkDto[]>> {
+    const link = await this.linksService.findOne(+userId);
     if (!link) {
       return new ResponseDto(-1, '地址未找到', null);
     }
