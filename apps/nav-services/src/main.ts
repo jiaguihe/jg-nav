@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import * as fs from 'fs';
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import { NestExpressApplication } from '@nestjs/platform-express';
@@ -9,7 +10,19 @@ import { GlobalExceptionFilter } from './common/exception.filter';
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+  // 可选 HTTPS：配置 SSL_KEY/SSL_CERT 时启用（沿用旧版 Nest 直挂证书的部署方式），
+  // 未配置则以 HTTP 启动（nginx 反代场景）
+  const sslKey = process.env.SSL_KEY;
+  const sslCert = process.env.SSL_CERT;
+  const httpsOptions =
+    sslKey && sslCert
+      ? { key: fs.readFileSync(sslKey), cert: fs.readFileSync(sslCert) }
+      : undefined;
+  const app = await NestFactory.create<NestExpressApplication>(
+    AppModule,
+    httpsOptions ? { httpsOptions } : {}
+  );
 
   // httpOnly Cookie 会话的基础设施
   app.use(cookieParser());
