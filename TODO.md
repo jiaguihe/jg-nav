@@ -56,16 +56,14 @@
 - [ ] 数据回归：旧账号登录、收藏列表与 v1 完全一致（共用同一库，理论无差异）
 - [ ] 数据库备份一次再切换（防御性）
 
-## 四、Git 替换流程（用户既定方案）
+## 四、Git 替换流程（已完成 2026-08-21）
 
-1. 新项目验证稳定后，在 `f:\jg-nav-new` 内 `git init`
-2. 复制旧仓库的 `.trae/`（rules + commit-spec skill）与 `DEVELOPMENT.md` 过来
-3. 首次提交，然后：
-   ```
-   git remote add origin git@github.com:jiaguihe/jg-nav.git
-   git push -f origin master   # 强推覆盖远程
-   ```
-4. 确认远程与线上无误后，删除旧目录 `f:\jg-nav`
+- [x] `git init`（master 分支）
+- [x] 复制旧项目 `.trae/`（rules + commit-spec skill）与 `DEVELOPMENT.md`
+- [x] 首次提交 `4621507 feat(nav-pc,nav-services): v2 全量重构为 monorepo 架构`（65 文件；
+      .env / node_modules / 测试截图 / tsbuildinfo 均已排除）
+- [x] `git push -f origin master` 覆盖远程（旧 HEAD `5cbe5e2` → 新 HEAD `4621507`，已验证）
+- [x] **旧目录 `f:\jg-nav` 按用户要求保留**（旧仓库历史在其本地 .git 中完整留存，未删除）
 
 ## 五、可选优化（不影响上线）
 
