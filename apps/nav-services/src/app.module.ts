@@ -18,8 +18,8 @@ import { LinkModule } from './modules/link/link.module';
         password: config.get<string>('DB_PASSWORD', ''),
         database: config.get<string>('DB_DATABASE', 'jgnav'),
         autoLoadEntities: true,
-        // 表结构沿用旧库，禁止自动同步（旧项目 synchronize: true 已建好表）
-        synchronize: false
+        // 首次部署空库时可设 DB_SYNCHRONIZE=true 自动建表，建完建议改回 false（生产防误改表）
+        synchronize: config.get('DB_SYNCHRONIZE') === 'true'
       })
     }),
     UserModule,
