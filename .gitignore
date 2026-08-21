@@ -25,3 +25,8 @@ gui-test-screenshots/
 
 # TS 增量构建缓存
 *.tsbuildinfo
+
+# 本地工作文件（不提交）
+TODO.md
+deploy-build.sh
+deploy-output/
