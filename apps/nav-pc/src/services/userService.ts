@@ -1,9 +1,9 @@
 import { request } from './request';
 import type { UserVO } from '@jg/api-types';
 
-/** 获取当前登录用户（Cookie 有效时返回，否则 401） */
+/** 获取当前登录用户（Cookie 有效时返回；匿名访问的 401 静默处理，不弹提示） */
 export function fetchMe() {
-  return request<UserVO>({ url: '/user/me', method: 'GET' });
+  return request<UserVO>({ url: '/user/me', method: 'GET', silent: true });
 }
 
 export function login(params: { username: string; password: string }) {

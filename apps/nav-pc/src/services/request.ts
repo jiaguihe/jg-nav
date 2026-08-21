@@ -11,12 +11,14 @@ const service = axios.create({
   withCredentials: true
 });
 
-// 拦截器仅做统一错误提示，不改变返回值结构
+// 拦截器统一错误提示；silent 请求（如匿名会话探测）不弹提示
 service.interceptors.response.use(
   (response) => {
     const res = response.data as ApiResponse;
     if (res.code !== 0) {
-      ElMessage.error(res.message);
+      if (!(response.config as RequestConfig).silent) {
+        ElMessage.error(res.message);
+      }
       return Promise.reject(res);
     }
     return response;
@@ -24,13 +26,17 @@ service.interceptors.response.use(
   (error) => {
     const message =
       (error.response?.data as ApiResponse)?.message || '网络异常，请稍后重试';
-    ElMessage.error(message);
+    if (!(error.config as RequestConfig)?.silent) {
+      ElMessage.error(message);
+    }
     return Promise.reject(error);
   }
 );
 
-/** 泛型请求方法：返回值即业务 data 字段 */
-export async function request<T>(config: AxiosRequestConfig): Promise<T> {
+/** 泛型请求方法：返回值即业务 data 字段；silent 控制是否弹全局错误提示 */
+export async function request<T>(config: RequestConfig): Promise<T> {
   const response = await service.request<ApiResponse<T>>(config);
   return response.data.data;
 }
+
+type RequestConfig = AxiosRequestConfig & { silent?: boolean };
