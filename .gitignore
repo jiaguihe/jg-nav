@@ -1,0 +1,27 @@
+# 依赖
+node_modules
+.pnpm-store
+
+# 构建产物
+dist
+coverage
+
+# 环境配置（不提交）
+.env
+.env.*
+!.env.example
+
+# 日志
+*.log
+
+# 编辑器
+.idea
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
+
+# 测试截图（运行时验证产物）
+gui-test-screenshots/
+
+# TS 增量构建缓存
+*.tsbuildinfo

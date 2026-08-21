@@ -1,0 +1,24 @@
+{
+  "name": "jg-nav",
+  "version": "2.0.0",
+  "private": true,
+  "description": "个人导航站 Monorepo：Vue 3.6 + NestJS 11 + 共享类型包",
+  "engines": {
+    "node": ">=22",
+    "pnpm": ">=10"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @jg/nav-pc dev",
+    "dev:all": "pnpm --filter @jg/nav-services start:dev && pnpm --filter @jg/nav-pc dev",
+    "build": "pnpm -r build",
+    "build:types": "pnpm --filter @jg/api-types build",
+    "build:web": "pnpm --filter @jg/nav-pc build",
+    "build:api": "pnpm --filter @jg/nav-services build",
+    "lint": "pnpm -r lint"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@vue/devtools-api": "8.1.5",
+    "prettier": "^3.4.2"
+  }
+}
