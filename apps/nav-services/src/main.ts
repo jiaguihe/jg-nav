@@ -58,6 +58,8 @@ async function bootstrap() {
 
   const port = process.env.PORT || 3000;
   await app.listen(port);
-  logger.log(`服务已启动: http://localhost:${port}/api`);
+  logger.log(
+    `服务已启动: ${httpsOptions ? 'https' : 'http'}://localhost:${port}/api`
+  );
 }
 bootstrap();
