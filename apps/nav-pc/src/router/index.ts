@@ -5,8 +5,22 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      name: 'home',
-      component: () => import('@/views/home/homePage.vue')
+      name: 'nav',
+      component: () => import('@/views/nav/navPage.vue')
+    },
+    {
+      path: '/takeout',
+      name: 'takeout',
+      component: () => import('@/views/takeout/takeoutPage.vue')
+    },
+    {
+      path: '/tools',
+      name: 'tools',
+      component: () => import('@/views/tools/toolsPage.vue')
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      redirect: '/'
     }
   ]
 });

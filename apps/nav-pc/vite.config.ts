@@ -15,7 +15,9 @@ export default defineConfig({
       dts: 'src/auto-imports.d.ts'
     }),
     Components({
-      resolvers: [ElementPlusResolver()],
+      // 样式走 main.ts 全量 CSS；按需样式会让 dev 首次用到新组件时
+      // 触发依赖预构建并整页刷新（切路由时体验极差），故关闭
+      resolvers: [ElementPlusResolver({ importStyle: false })],
       dts: 'src/components.d.ts'
     })
   ],

@@ -1,10 +1,10 @@
 <template>
   <el-dialog
     :model-value="modelValue"
-    title="添加网址"
+    :title="isEdit ? '编辑网址' : '添加网址'"
     width="480"
     @update:model-value="emit('update:modelValue', $event)"
-    @closed="resetForm"
+    @open="handleOpen"
   >
     <el-form
       ref="formRef"
@@ -19,10 +19,20 @@
       <el-form-item label="网址" prop="url">
         <el-input v-model="form.url" placeholder="https://github.com" />
       </el-form-item>
+      <el-form-item label="分组">
+        <el-select v-model="form.groupId" placeholder="未分组" clearable>
+          <el-option
+            v-for="group in groups"
+            :key="group.id"
+            :label="group.name"
+            :value="group.id"
+          />
+        </el-select>
+      </el-form-item>
     </el-form>
     <template #footer>
       <el-button @click="emit('update:modelValue', false)">取消</el-button>
-      <el-button type="primary" :loading="loading" @click="handleAdd">
+      <el-button type="primary" :loading="loading" @click="handleSubmit">
         确认
       </el-button>
     </template>
@@ -30,23 +40,36 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from 'vue';
+import { reactive, ref, computed } from 'vue';
 import { useMutation, useQueryClient } from '@tanstack/vue-query';
 import { ElMessage } from 'element-plus';
 import type { FormInstance, FormRules } from 'element-plus';
-import type { CreateLinkDTO } from '@jg/api-types';
-import { createLink } from '@/services/linkService';
+import type {
+  CreateLinkDTO,
+  LinkGroupVO,
+  LinkVO,
+  UpdateLinkDTO
+} from '@jg/api-types';
+import { createLink, updateLink } from '@/services/linkService';
 
-const props = defineProps<{ modelValue: boolean }>();
+const props = defineProps<{
+  modelValue: boolean;
+  /** 传入则为编辑模式，否则为新增 */
+  link?: LinkVO | null;
+  groups: LinkGroupVO[];
+}>();
 const emit = defineEmits<{ 'update:modelValue': [value: boolean] }>();
 
 const queryClient = useQueryClient();
 const formRef = ref<FormInstance>();
 const loading = ref(false);
 
+const isEdit = computed(() => !!props.link);
+
 const form = reactive<CreateLinkDTO>({
   url: '',
-  description: ''
+  description: '',
+  groupId: null
 });
 
 const rules: FormRules = {
@@ -60,34 +83,41 @@ const rules: FormRules = {
   ]
 };
 
-const addMutation = useMutation({
-  mutationFn: (data: CreateLinkDTO) => createLink(data),
+const handleOpen = () => {
+  form.url = props.link?.url ?? '';
+  form.description = props.link?.description ?? '';
+  form.groupId = props.link?.groupId ?? null;
+};
+
+const saveMutation = useMutation({
+  mutationFn: async () => {
+    const data = { ...form };
+    if (/^www\./.test(data.url)) {
+      data.url = `https://${data.url}`;
+    }
+    if (isEdit.value && props.link) {
+      return updateLink(props.link.id, data as UpdateLinkDTO);
+    }
+    return createLink(data);
+  },
   onSuccess: () => {
-    ElMessage.success('添加成功');
+    ElMessage.success(isEdit.value ? '更新成功' : '添加成功');
     queryClient.invalidateQueries({ queryKey: ['links'] });
     emit('update:modelValue', false);
   }
 });
 
-const resetForm = () => formRef.value?.resetFields();
-
-const handleAdd = () => {
+const handleSubmit = () => {
   formRef.value?.validate((valid) => {
     if (!valid) return;
     loading.value = true;
-    // www 开头自动补协议，后端 IsUrl 校验要求完整 URL
-    const data = { ...form };
-    if (/^www\./.test(data.url)) {
-      data.url = `https://${data.url}`;
-    }
-    addMutation.mutate(data);
-    loading.value = false;
+    saveMutation.mutate(undefined, { onSettled: () => (loading.value = false) });
   });
 };
 </script>
 
-<script lang="ts">
-export default { name: 'LinkEditDialog' };
-</script>
-
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.el-select {
+  width: 100%;
+}
+</style>

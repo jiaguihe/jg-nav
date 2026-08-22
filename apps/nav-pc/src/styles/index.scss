@@ -1,3 +1,45 @@
+/* ============ 主题变量体系：浅色为默认，html.dark 覆盖为深色 ============ */
+
+:root {
+  // 玻璃拟态面板
+  --glass-bg: rgba(255, 255, 255, 0.55);
+  --glass-bg-strong: rgba(255, 255, 255, 0.78);
+  --glass-border: rgba(255, 255, 255, 0.65);
+  --glass-blur: 18px;
+
+  // 不透明面板（弹窗/抽屉，保证表单可读）
+  --panel-bg: rgba(255, 255, 255, 0.94);
+
+  // 文字层级
+  --text-1: #1f2329;
+  --text-2: rgba(31, 35, 41, 0.68);
+  --text-3: rgba(31, 35, 41, 0.45);
+
+  // 悬浮/强调
+  --hover-bg: rgba(255, 255, 255, 0.85);
+  --accent: #409eff;
+  --shadow-card: 0 8px 24px rgba(31, 38, 50, 0.12);
+  --shadow-card-hover: 0 14px 32px rgba(31, 38, 50, 0.2);
+}
+
+html.dark {
+  --glass-bg: rgba(24, 26, 34, 0.55);
+  --glass-bg-strong: rgba(24, 26, 34, 0.78);
+  --glass-border: rgba(255, 255, 255, 0.14);
+  --panel-bg: rgba(28, 30, 38, 0.95);
+
+  --text-1: #f2f3f5;
+  --text-2: rgba(242, 243, 245, 0.72);
+  --text-3: rgba(242, 243, 245, 0.45);
+
+  --hover-bg: rgba(255, 255, 255, 0.1);
+  --accent: #67a7ff;
+  --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.35);
+  --shadow-card-hover: 0 14px 32px rgba(0, 0, 0, 0.45);
+}
+
+/* ============ 基础 ============ */
+
 html,
 body {
   height: 100%;
@@ -6,4 +48,139 @@ body {
   font-family:
     'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB',
     'Microsoft YaHei', Arial, sans-serif;
+  color: var(--text-1);
+  background-color: #101218;
+}
+
+body {
+  overflow: hidden;
+}
+
+#app {
+  height: 100%;
+}
+
+// 页面内容区滚动条
+.app-scroll {
+  overflow-y: auto;
+
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    background: rgba(128, 134, 148, 0.35);
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+/* ============ 玻璃拟态工具类 ============ */
+
+.glass-panel {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 18px;
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  box-shadow: var(--shadow-card);
+}
+
+.glass-card {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    background 0.22s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-card-hover);
+    background: var(--glass-bg-strong);
+  }
+}
+
+// Element Plus 弹窗类容器统一玻璃化（背景图上纯白对话框太突兀）
+.el-dialog,
+.el-drawer,
+.el-message-box {
+  background: var(--panel-bg);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+}
+
+html.dark .el-drawer {
+  color: var(--text-1);
+}
+
+/* ============ 动效 ============ */
+
+// 工具页面板通用头（标题 + 徽标/操作按钮）
+.panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  .panel-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-1);
+  }
+
+  .panel-badge {
+    font-size: 12px;
+    color: var(--text-3);
+  }
+}
+
+// 卡片入场：列表错落上浮
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-up {
+  animation: fade-up 0.4s ease both;
+}
+
+// 路由切换过渡
+.page-enter-active,
+.page-leave-active {
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s ease;
+}
+
+.page-enter-from {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.page-leave-to {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+
+// 背景切换过渡
+.bg-fade-enter-active,
+.bg-fade-leave-active {
+  transition: opacity 0.6s ease;
+}
+
+.bg-fade-enter-from,
+.bg-fade-leave-to {
+  opacity: 0;
 }
