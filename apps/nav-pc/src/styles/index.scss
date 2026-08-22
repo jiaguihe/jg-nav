@@ -40,6 +40,12 @@ html.dark {
 
 /* ============ 基础 ============ */
 
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 html,
 body {
   height: 100%;

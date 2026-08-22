@@ -143,7 +143,9 @@ const handleLogout = async () => {
 }
 
 .top-bar {
-  margin: 14px 18px 0;
+  // 超宽屏内容聚拢居中，窄屏保留两侧 18px 留白
+  width: min(1440px, calc(100% - 36px));
+  margin: 14px auto 0;
   padding: 8px 14px;
   display: flex;
   align-items: center;
@@ -270,7 +272,8 @@ const handleLogout = async () => {
 
 .page-content {
   flex: 1;
-  margin: 14px 18px 46px;
+  width: min(1440px, calc(100% - 36px));
+  margin: 14px auto 46px;
 }
 
 .site-footer {
