@@ -1,5 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsUrl, MaxLength } from 'class-validator';
+import {
+  IsString,
+  IsUrl,
+  MaxLength,
+  IsOptional,
+  IsInt
+} from 'class-validator';
 
 export class CreateLinkDto {
   @ApiProperty({ description: '网址', example: 'https://github.com' })
@@ -10,4 +16,9 @@ export class CreateLinkDto {
   @IsString()
   @MaxLength(30, { message: '名称不能超过 30 个字符' })
   description: string;
+
+  @ApiProperty({ description: '所属分组', required: false, example: 1 })
+  @IsOptional()
+  @IsInt()
+  groupId?: number | null;
 }

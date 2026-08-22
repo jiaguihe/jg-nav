@@ -14,6 +14,7 @@ import { Request } from 'express';
 import { LinkService } from './link.service';
 import { CreateLinkDto } from './dto/create-link.dto';
 import { UpdateLinkDto } from './dto/update-link.dto';
+import { ReorderLinksDto } from './dto/reorder-links.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { ResponseDto } from '../../common/response.dto';
 
@@ -37,6 +38,20 @@ export class LinkController {
   async create(@Req() req: Request, @Body() dto: CreateLinkDto) {
     const link = await this.linkService.create(req.user!.id, dto);
     return ResponseDto.success(link, '创建成功');
+  }
+
+  @Patch('reorder')
+  @ApiOperation({ summary: '批量排序（拖拽后提交）' })
+  async reorder(@Req() req: Request, @Body() dto: ReorderLinksDto) {
+    await this.linkService.reorder(req.user!.id, dto);
+    return ResponseDto.success(null, '排序已保存');
+  }
+
+  @Post(':id/click')
+  @ApiOperation({ summary: '点击打卡（常用统计）' })
+  async click(@Req() req: Request, @Param('id') id: string) {
+    await this.linkService.registerClick(+id, req.user!.id);
+    return ResponseDto.success(null);
   }
 
   @Patch(':id')

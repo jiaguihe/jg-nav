@@ -3,6 +3,10 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './modules/user/user.module';
 import { LinkModule } from './modules/link/link.module';
+import { TakeawayModule } from './modules/takeaway/takeaway.module';
+import { TodoModule } from './modules/todo/todo.module';
+import { NoteModule } from './modules/note/note.module';
+import { MemorialModule } from './modules/memorial/memorial.module';
 
 @Module({
   imports: [
@@ -23,7 +27,11 @@ import { LinkModule } from './modules/link/link.module';
       })
     }),
     UserModule,
-    LinkModule
+    LinkModule,
+    TakeawayModule,
+    TodoModule,
+    NoteModule,
+    MemorialModule
   ]
 })
 export class AppModule {}
