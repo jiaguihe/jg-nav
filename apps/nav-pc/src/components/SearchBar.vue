@@ -101,6 +101,15 @@ onUnmounted(() => window.removeEventListener('keydown', onGlobalKeydown));
 </script>
 
 <style lang="scss" scoped>
+// 下拉面板会被 teleport 到 body，引擎图标样式必须用顶层选择器（不能嵌套在 .search-bar 内）
+.engine-menu-icon {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  margin-right: 8px;
+  object-fit: contain;
+}
+
 .search-bar {
   display: flex;
   align-items: center;
@@ -137,6 +146,7 @@ onUnmounted(() => window.removeEventListener('keydown', onGlobalKeydown));
       width: 16px;
       height: 16px;
       border-radius: 3px;
+      object-fit: contain;
     }
 
     .engine-name {
