@@ -143,6 +143,9 @@ const handleLogout = async () => {
 }
 
 .top-bar {
+  // 纯装饰的背景层是 fixed z-0，顶栏必须显式抬到其上，保证可点、可读
+  position: relative;
+  z-index: 1;
   // 超宽屏内容聚拢居中，窄屏保留两侧 18px 留白
   width: min(1440px, calc(100% - 36px));
   margin: 14px auto 0;
@@ -271,6 +274,8 @@ const handleLogout = async () => {
 }
 
 .page-content {
+  position: relative;
+  z-index: 1;
   flex: 1;
   width: min(1440px, calc(100% - 36px));
   margin: 14px auto 46px;
@@ -281,6 +286,7 @@ const handleLogout = async () => {
   bottom: 0;
   left: 0;
   right: 0;
+  z-index: 1;
   height: 34px;
   display: flex;
   justify-content: center;

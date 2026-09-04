@@ -37,6 +37,8 @@ const imageIndex = computed(() =>
   inset: 0;
   z-index: 0;
   overflow: hidden;
+  // 纯装饰层：不能拦截页面点击（否则顶栏/内容区全部点不动）
+  pointer-events: none;
 }
 
 .bg-image {
