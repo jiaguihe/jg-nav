@@ -55,6 +55,12 @@ body {
     'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB',
     'Microsoft YaHei', Arial, sans-serif;
   color: var(--text-1);
+  // 图片加载前/失败时的兜底底色，跟随主题
+  background-color: #eef2f7;
+}
+
+html.dark,
+html.dark body {
   background-color: #101218;
 }
 

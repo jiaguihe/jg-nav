@@ -50,11 +50,11 @@ const imageIndex = computed(() =>
   transform: scale(1.02);
 }
 
-// 轻遮罩压住高亮区域，保证玻璃卡片与文字可读
+// 遮罩随主题：浅色用白纱提亮压反光，深色用暗纱压高亮，都为保证玻璃卡片可读
 .bg-mask {
   position: absolute;
   inset: 0;
-  background: rgba(8, 10, 16, 0.18);
+  background: rgba(255, 255, 255, 0.26);
 
   html.dark & {
     background: rgba(8, 10, 16, 0.32);

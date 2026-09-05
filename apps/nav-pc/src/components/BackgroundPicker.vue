@@ -23,7 +23,7 @@
 
     <div v-else class="gradient-grid">
       <div
-        v-for="(g, i) in GRADIENTS"
+        v-for="(g, i) in appStore.gradients"
         :key="i"
         :style="{ backgroundImage: g }"
         :class="{ active: appStore.gradientIndex === i }"
@@ -35,7 +35,7 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue';
-import { useAppStore, GRADIENTS } from '@/stores/app';
+import { useAppStore } from '@/stores/app';
 import { bgImages } from '@/constants/backgrounds';
 
 defineOptions({ name: 'BackgroundPicker' });
