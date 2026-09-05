@@ -219,3 +219,25 @@ export interface UpdateMemorialDTO {
   targetDate?: string;
   repeatYearly?: boolean;
 }
+
+/* ==================== 翻译 ==================== */
+
+/** 翻译入参：from/to 使用百度翻译的语言代码（auto/zh/en/jp/kor/fra/de/ru…） */
+export interface TranslateDTO {
+  text: string;
+  from?: string;
+  to?: string;
+}
+
+/** 单句翻译结果 */
+export interface TranslateItemVO {
+  src: string;
+  dst: string;
+}
+
+/** 翻译结果 */
+export interface TranslateResultVO {
+  from: string;
+  to: string;
+  items: TranslateItemVO[];
+}

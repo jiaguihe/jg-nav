@@ -7,6 +7,7 @@ import { TakeawayModule } from './modules/takeaway/takeaway.module';
 import { TodoModule } from './modules/todo/todo.module';
 import { NoteModule } from './modules/note/note.module';
 import { MemorialModule } from './modules/memorial/memorial.module';
+import { TranslateModule } from './modules/translate/translate.module';
 
 @Module({
   imports: [
@@ -31,7 +32,8 @@ import { MemorialModule } from './modules/memorial/memorial.module';
     TakeawayModule,
     TodoModule,
     NoteModule,
-    MemorialModule
+    MemorialModule,
+    TranslateModule
   ]
 })
 export class AppModule {}

@@ -8,7 +8,9 @@ import type {
   UpdateNoteDTO,
   MemorialVO,
   CreateMemorialDTO,
-  UpdateMemorialDTO
+  UpdateMemorialDTO,
+  TranslateDTO,
+  TranslateResultVO
 } from '@jg/api-types';
 
 /* ---------- 待办 ---------- */
@@ -67,4 +69,15 @@ export function updateMemorial(id: number, data: UpdateMemorialDTO) {
 
 export function removeMemorial(id: number) {
   return request<null>({ url: `/memorials/${id}`, method: 'DELETE' });
+}
+
+/* ---------- 翻译 ---------- */
+
+export function translateText(data: TranslateDTO) {
+  return request<TranslateResultVO>({
+    url: '/translate',
+    method: 'POST',
+    data,
+    timeout: 15000
+  });
 }
