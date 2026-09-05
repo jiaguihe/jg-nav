@@ -1,7 +1,10 @@
 <template>
-  <div v-if="sentence" class="hitokoto" title="点击换一句" @click="load">
-    <span class="hitokoto-text">「{{ sentence.hitokoto }}」</span>
-    <span class="hitokoto-from">—— {{ sentence.from_who || sentence.from || '一言' }}</span>
+  <!-- 常驻占位：接口返回前预留一行高度，避免下方内容先升后降的跳动 -->
+  <div class="hitokoto-wrap">
+    <div v-if="sentence" class="hitokoto" title="点击换一句" @click="load">
+      <span class="hitokoto-text">「{{ sentence.hitokoto }}」</span>
+      <span class="hitokoto-from">—— {{ sentence.from_who || sentence.from || '一言' }}</span>
+    </div>
   </div>
 </template>
 
@@ -32,6 +35,14 @@ onMounted(load);
 </script>
 
 <style lang="scss" scoped>
+.hitokoto-wrap {
+  // 固定一行文字的高度（14px × 1.5 行高），加载前后布局稳定
+  min-height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .hitokoto {
   text-align: center;
   cursor: pointer;
