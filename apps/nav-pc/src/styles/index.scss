@@ -1,14 +1,17 @@
-/* ============ 主题变量体系：浅色为默认，html.dark 覆盖为深色 ============ */
+/* ============ 主题变量体系：纯白 / 深色双主题，扁平干净风 ============ */
 
 :root {
-  // 玻璃拟态面板
-  --glass-bg: rgba(255, 255, 255, 0.55);
-  --glass-bg-strong: rgba(255, 255, 255, 0.78);
-  --glass-border: rgba(255, 255, 255, 0.65);
-  --glass-blur: 18px;
+  // 卡片面板（沿用 glass-* 命名，语义为“面板表面”）
+  --glass-bg: #ffffff;
+  --glass-bg-strong: #ffffff;
+  --glass-border: #e7e9ee;
 
-  // 不透明面板（弹窗/抽屉，保证表单可读）
-  --panel-bg: rgba(255, 255, 255, 0.94);
+  // 卡片内部槽位（输入井/结果区/chip 按钮）
+  --inner-bg: #f6f7f9;
+  --inner-border: #eaecef;
+
+  // 不透明面板（弹窗/抽屉）
+  --panel-bg: #ffffff;
 
   // 文字层级
   --text-1: #1f2329;
@@ -16,26 +19,30 @@
   --text-3: rgba(31, 35, 41, 0.45);
 
   // 悬浮/强调
-  --hover-bg: rgba(255, 255, 255, 0.85);
+  --hover-bg: #f2f4f7;
   --accent: #409eff;
-  --shadow-card: 0 8px 24px rgba(31, 38, 50, 0.12);
-  --shadow-card-hover: 0 14px 32px rgba(31, 38, 50, 0.2);
+  --page-bg: #ffffff;
+  --shadow-card: 0 1px 2px rgba(31, 38, 50, 0.04), 0 4px 14px rgba(31, 38, 50, 0.05);
+  --shadow-card-hover: 0 2px 4px rgba(31, 38, 50, 0.05), 0 10px 26px rgba(31, 38, 50, 0.09);
 }
 
 html.dark {
-  --glass-bg: rgba(24, 26, 34, 0.55);
-  --glass-bg-strong: rgba(24, 26, 34, 0.78);
-  --glass-border: rgba(255, 255, 255, 0.14);
-  --panel-bg: rgba(28, 30, 38, 0.95);
+  --glass-bg: #161923;
+  --glass-bg-strong: #1c202c;
+  --glass-border: #2a2f3c;
+  --inner-bg: #10131a;
+  --inner-border: #262b38;
+  --panel-bg: #1a1e29;
 
   --text-1: #f2f3f5;
   --text-2: rgba(242, 243, 245, 0.72);
   --text-3: rgba(242, 243, 245, 0.45);
 
-  --hover-bg: rgba(255, 255, 255, 0.1);
+  --hover-bg: rgba(255, 255, 255, 0.07);
   --accent: #67a7ff;
-  --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.35);
-  --shadow-card-hover: 0 14px 32px rgba(0, 0, 0, 0.45);
+  --page-bg: #0f1117;
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.25), 0 4px 14px rgba(0, 0, 0, 0.2);
+  --shadow-card-hover: 0 2px 4px rgba(0, 0, 0, 0.3), 0 10px 26px rgba(0, 0, 0, 0.32);
 }
 
 /* ============ 基础 ============ */
@@ -55,13 +62,11 @@ body {
     'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB',
     'Microsoft YaHei', Arial, sans-serif;
   color: var(--text-1);
-  // 图片加载前/失败时的兜底底色，跟随主题
-  background-color: #eef2f7;
+  background-color: var(--page-bg);
 }
 
-html.dark,
-html.dark body {
-  background-color: #101218;
+html.dark {
+  color-scheme: dark;
 }
 
 body {
@@ -90,14 +95,12 @@ body {
   }
 }
 
-/* ============ 玻璃拟态工具类 ============ */
+/* ============ 卡片面板工具类 ============ */
 
 .glass-panel {
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
   border-radius: 18px;
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
   box-shadow: var(--shadow-card);
 }
 
@@ -105,27 +108,26 @@ body {
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
   border-radius: 16px;
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
+  box-shadow: var(--shadow-card);
   transition:
     transform 0.22s ease,
     box-shadow 0.22s ease,
-    background 0.22s ease;
+    background 0.22s ease,
+    border-color 0.22s ease;
 
   &:hover {
     transform: translateY(-4px);
     box-shadow: var(--shadow-card-hover);
     background: var(--glass-bg-strong);
+    border-color: var(--accent);
   }
 }
 
-// Element Plus 弹窗类容器统一玻璃化（背景图上纯白对话框太突兀）
+// Element Plus 弹窗类容器与站内面板统一表面色
 .el-dialog,
 .el-drawer,
 .el-message-box {
   background: var(--panel-bg);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
 }
 
 html.dark .el-drawer {
@@ -184,15 +186,4 @@ html.dark .el-drawer {
 .page-leave-to {
   opacity: 0;
   transform: translateY(-6px);
-}
-
-// 背景切换过渡
-.bg-fade-enter-active,
-.bg-fade-leave-active {
-  transition: opacity 0.6s ease;
-}
-
-.bg-fade-enter-from,
-.bg-fade-leave-to {
-  opacity: 0;
 }

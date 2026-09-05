@@ -100,8 +100,8 @@ onUnmounted(() => window.clearTimeout(timer));
     gap: 10px;
     padding: 16px;
     border-radius: 16px;
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
+    background: var(--inner-bg);
+    border: 1px solid var(--inner-border);
 
     .roll-name {
       font-size: 24px;

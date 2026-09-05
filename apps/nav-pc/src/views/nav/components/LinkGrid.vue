@@ -310,9 +310,8 @@ function openGroupMenu(group: LinkGroupVO) {
     height: 32px;
     padding: 0 14px;
     border-radius: 10px;
-    border: 1px solid var(--glass-border);
-    background: var(--glass-bg);
-    backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--inner-border);
+    background: var(--inner-bg);
     color: var(--text-2);
     font-size: 13px;
     cursor: pointer;
@@ -355,9 +354,8 @@ function openGroupMenu(group: LinkGroupVO) {
     height: 32px;
     padding: 0 14px;
     border-radius: 10px;
-    border: 1px solid var(--glass-border);
-    background: var(--glass-bg);
-    backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--inner-border);
+    background: var(--inner-bg);
     color: var(--text-2);
     font-size: 13px;
     cursor: pointer;

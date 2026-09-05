@@ -158,8 +158,8 @@ function confirmRemove(item: MemorialVO) {
       gap: 10px;
       padding: 10px 14px;
       border-radius: 12px;
-      background: var(--glass-bg);
-      border: 1px solid var(--glass-border);
+      background: var(--inner-bg);
+      border: 1px solid var(--inner-border);
       position: relative;
       transition: background 0.2s ease;
 

@@ -174,7 +174,7 @@ async function handleClearDone() {
 
   .todo-footer {
     padding-top: 8px;
-    border-top: 1px solid var(--glass-border);
+    border-top: 1px solid var(--inner-border);
     font-size: 12px;
     color: var(--text-3);
     display: flex;

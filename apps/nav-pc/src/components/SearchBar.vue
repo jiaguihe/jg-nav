@@ -118,9 +118,8 @@ onUnmounted(() => window.removeEventListener('keydown', onGlobalKeydown));
   padding: 0 10px;
   gap: 8px;
   border-radius: 20px;
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  backdrop-filter: blur(var(--glass-blur));
+  background: var(--inner-bg);
+  border: 1px solid var(--inner-border);
   transition: box-shadow 0.2s ease;
 
   &:focus-within {

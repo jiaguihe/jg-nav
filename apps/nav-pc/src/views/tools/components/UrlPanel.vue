@@ -174,8 +174,8 @@ function clearAll() {
     margin-top: 12px;
     padding: 10px 12px;
     border-radius: 10px;
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
+    background: var(--inner-bg);
+    border: 1px solid var(--inner-border);
 
     .result-label {
       flex-shrink: 0;

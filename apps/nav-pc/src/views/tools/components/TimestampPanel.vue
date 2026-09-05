@@ -139,8 +139,8 @@ onUnmounted(() => window.clearInterval(timer));
     margin: 10px 0 14px;
     padding: 12px 14px;
     border-radius: 12px;
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
+    background: var(--inner-bg);
+    border: 1px solid var(--inner-border);
 
     .now-row {
       display: flex;
@@ -199,8 +199,8 @@ onUnmounted(() => window.clearInterval(timer));
     .convert-result {
       padding: 8px 12px;
       border-radius: 10px;
-      background: var(--glass-bg);
-      border: 1px solid var(--glass-border);
+      background: var(--inner-bg);
+      border: 1px solid var(--inner-border);
 
       .result-line {
         font-size: 13px;

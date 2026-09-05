@@ -188,8 +188,8 @@ function clearAll() {
       overflow-y: auto;
       padding: 8px 12px;
       border-radius: 10px;
-      background: var(--glass-bg);
-      border: 1px solid var(--glass-border);
+      background: var(--inner-bg);
+      border: 1px solid var(--inner-border);
 
       .result-item + .result-item {
         margin-top: 8px;
@@ -215,8 +215,8 @@ function clearAll() {
       font-size: 13px;
       color: var(--text-3);
       border-radius: 10px;
-      background: var(--glass-bg);
-      border: 1px dashed var(--glass-border);
+      background: var(--inner-bg);
+      border: 1px dashed var(--inner-border);
     }
   }
 

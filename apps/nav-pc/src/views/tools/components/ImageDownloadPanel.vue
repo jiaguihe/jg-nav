@@ -149,8 +149,8 @@ function openInNewTab() {
     margin-bottom: 12px;
     padding: 8px;
     border-radius: 12px;
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
+    background: var(--inner-bg);
+    border: 1px solid var(--inner-border);
     overflow: hidden;
 
     img {

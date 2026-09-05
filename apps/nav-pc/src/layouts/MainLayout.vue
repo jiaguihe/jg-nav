@@ -1,7 +1,5 @@
 <template>
   <div class="main-layout">
-    <BackgroundLayer />
-
     <header class="top-bar glass-panel">
       <RouterLink to="/" class="brand">
         <span class="brand-mark">JG</span>
@@ -27,22 +25,11 @@
       <div class="top-actions">
         <WeatherWidget />
 
-        <el-tooltip :content="appStore.theme === 'dark' ? '切换浅色' : '切换深色'" placement="bottom">
+        <el-tooltip :content="appStore.theme === 'dark' ? '切换纯白' : '切换深色'" placement="bottom">
           <button class="icon-btn" @click="appStore.toggleTheme()">
             <el-icon><Sunny v-if="appStore.theme === 'dark'" /><Moon v-else /></el-icon>
           </button>
         </el-tooltip>
-
-        <el-popover trigger="click" width="280" placement="bottom-end">
-          <template #reference>
-            <el-tooltip content="背景设置" placement="bottom">
-              <button class="icon-btn">
-                <el-icon><Picture /></el-icon>
-              </button>
-            </el-tooltip>
-          </template>
-          <BackgroundPicker />
-        </el-popover>
 
         <el-dropdown v-if="userStore.user">
           <button class="icon-btn user-btn">
@@ -92,7 +79,6 @@ import { ElMessage } from 'element-plus';
 import {
   Sunny,
   Moon,
-  Picture,
   ArrowDown,
   Compass,
   Food,
@@ -100,8 +86,6 @@ import {
 } from '@element-plus/icons-vue';
 import { useUserStore } from '@/stores/user';
 import { useAppStore } from '@/stores/app';
-import BackgroundLayer from '@/components/BackgroundLayer.vue';
-import BackgroundPicker from '@/components/BackgroundPicker.vue';
 import SearchBar from '@/components/SearchBar.vue';
 import WeatherWidget from '@/components/WeatherWidget.vue';
 import LoginDialog from '@/components/LoginDialog.vue';
@@ -143,7 +127,6 @@ const handleLogout = async () => {
 }
 
 .top-bar {
-  // 纯装饰的背景层是 fixed z-0，顶栏必须显式抬到其上，保证可点、可读
   position: relative;
   z-index: 1;
   // 超宽屏内容聚拢居中，窄屏保留两侧 18px 留白

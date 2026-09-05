@@ -7,6 +7,13 @@
   </head>
   <body>
     <div id="app"></div>
+    <script>
+      // 应用挂载前恢复深色主题，避免纯白底闪屏
+      try {
+        var saved = JSON.parse(localStorage.getItem('jg-nav-appearance') || '{}');
+        if (saved.theme === 'dark') document.documentElement.classList.add('dark');
+      } catch (e) {}
+    </script>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

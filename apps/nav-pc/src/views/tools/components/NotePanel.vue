@@ -132,8 +132,8 @@ function confirmRemove(note: NoteVO) {
     .note-item {
       padding: 10px 12px;
       border-radius: 12px;
-      background: var(--glass-bg);
-      border: 1px solid var(--glass-border);
+      background: var(--inner-bg);
+      border: 1px solid var(--inner-border);
       cursor: pointer;
       transition: background 0.2s ease;
 

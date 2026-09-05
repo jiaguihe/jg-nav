@@ -113,8 +113,8 @@ onUnmounted(pause);
     align-items: center;
     justify-content: center;
     border-radius: 16px;
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
+    background: var(--inner-bg);
+    border: 1px solid var(--inner-border);
     margin: 10px 0 14px;
     transition: border-color 0.3s ease;
 

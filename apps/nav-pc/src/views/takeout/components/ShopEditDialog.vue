@@ -193,7 +193,7 @@ const handleSubmit = () => {
   .tag-option {
     padding: 6px 14px;
     border-radius: 10px;
-    border: 1px solid var(--glass-border);
+    border: 1px solid var(--inner-border);
     background: transparent;
     color: var(--text-2);
     font-size: 13px;

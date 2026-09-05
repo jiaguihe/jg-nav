@@ -208,8 +208,8 @@ function confirmRemoveOrder(order: TakeawayOrderVO) {
       text-align: center;
       padding: 12px 0;
       border-radius: 12px;
-      background: var(--glass-bg);
-      border: 1px solid var(--glass-border);
+      background: var(--inner-bg);
+      border: 1px solid var(--inner-border);
 
       .stat-num {
         font-size: 20px;
