@@ -24,11 +24,16 @@
       <div class="url-result">
         <div class="result-label">结果</div>
         <div class="result-text">{{ result }}</div>
+        <el-button v-if="isHttpUrl(result)" size="small" text type="success" @click="openResult">跳转</el-button>
         <el-button size="small" text type="primary" @click="copyResult">复制</el-button>
       </div>
     </template>
 
     <template v-if="parsed">
+      <div class="parsed-head">
+        <span class="parsed-title">解析结果</span>
+        <el-button size="small" text type="success" @click="openParsed">跳转打开</el-button>
+      </div>
       <el-descriptions :column="2" size="small" border class="url-parts">
         <el-descriptions-item label="协议">{{ parsed.protocol }}</el-descriptions-item>
         <el-descriptions-item label="主机名">{{ parsed.hostname }}</el-descriptions-item>
@@ -56,6 +61,7 @@ defineOptions({ name: 'UrlPanel' });
 const raw = ref('');
 const result = ref('');
 const parsed = ref<{
+  href: string;
   protocol: string;
   hostname: string;
   port: string;
@@ -64,6 +70,27 @@ const parsed = ref<{
   hash: string;
   params: { key: string; value: string }[];
 } | null>(null);
+
+/** 仅允许跳转 http/https 链接，防止 javascript: 之类伪协议 */
+function isHttpUrl(text: string): boolean {
+  return /^https?:\/\//i.test(text.trim());
+}
+
+function openUrl(text: string) {
+  const url = text.trim();
+  if (!isHttpUrl(url)) {
+    return ElMessage.warning('不是 http/https 链接，无法跳转');
+  }
+  window.open(url, '_blank', 'noopener');
+}
+
+function openResult() {
+  openUrl(result.value);
+}
+
+function openParsed() {
+  if (parsed.value) openUrl(parsed.value.href);
+}
 
 function encodeComponent() {
   if (!raw.value) return ElMessage.warning('请先输入内容');
@@ -94,6 +121,7 @@ function parse() {
   try {
     const url = new URL(candidate);
     parsed.value = {
+      href: url.href,
       protocol: url.protocol.replace(':', ''),
       hostname: url.hostname,
       port: url.port,
@@ -166,8 +194,20 @@ function clearAll() {
     }
   }
 
-  .url-parts {
+  .parsed-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     margin-top: 12px;
+
+    .parsed-title {
+      font-size: 12px;
+      color: var(--text-3);
+    }
+  }
+
+  .url-parts {
+    margin-top: 6px;
   }
 
   .param-table {
