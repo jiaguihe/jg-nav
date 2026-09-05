@@ -2,7 +2,7 @@
   <div class="translate-panel">
     <div class="panel-head">
       <span class="panel-title">🌍 翻译</span>
-      <span class="panel-badge">百度翻译 · 免费版每秒 1 次</span>
+      <span class="panel-badge">百度翻译 · 停止输入自动翻译</span>
     </div>
 
     <div class="lang-row">
@@ -21,10 +21,10 @@
           v-model="text"
           type="textarea"
           :rows="6"
-          placeholder="输入要翻译的文本，Ctrl + Enter 快速翻译"
+          placeholder="输入要翻译的文本，停止输入 1 秒后自动翻译"
           maxlength="4000"
           show-word-limit
-          @keydown.ctrl.enter="doTranslate"
+          @keydown.ctrl.enter="doTranslate()"
         />
       </div>
       <div class="io-col">
@@ -39,7 +39,7 @@
     </div>
 
     <div class="translate-actions">
-      <el-button type="primary" round :loading="loading" @click="doTranslate">翻 译</el-button>
+      <el-button type="primary" round :loading="loading" @click="doTranslate()">翻 译</el-button>
       <el-button round :disabled="!hasResult" @click="copyResult">复制结果</el-button>
       <el-button text type="danger" @click="clearAll">清空</el-button>
     </div>
@@ -47,7 +47,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, watch, onUnmounted } from 'vue';
 import { ElMessage } from 'element-plus';
 import { translateText } from '@/services/toolsService';
 import { copyText } from '@/utils/clipboard';
@@ -81,10 +81,34 @@ const results = ref<{ src: string; dst: string }[]>([]);
 
 const hasResult = computed(() => results.value.length > 0);
 
+/** 停止输入 1s 后自动翻译：覆盖打字、改语言、交换方向三种场景 */
+const AUTO_DELAY_MS = 1000;
+let debounceTimer: number | undefined;
+/** 最近一次已发起翻译的组合键，避免自动翻译重复请求相同内容 */
+let lastTranslateKey = '';
+
+function translateKey() {
+  return `${from.value}>${to.value}:${text.value.trim()}`;
+}
+
+watch([text, from, to], () => {
+  window.clearTimeout(debounceTimer);
+  if (!text.value.trim()) {
+    results.value = [];
+    lastTranslateKey = '';
+    return;
+  }
+  debounceTimer = window.setTimeout(() => {
+    void doTranslate(true);
+  }, AUTO_DELAY_MS);
+});
+
+onUnmounted(() => window.clearTimeout(debounceTimer));
+
 function swapLanguages() {
   if (from.value === 'auto') return;
   [from.value, to.value] = [to.value, from.value];
-  // 已有译文时把译文换成新原文，方便回译核对
+  // 已有译文时把译文换成新原文，方便回译核对；text 变化会触发自动回译
   if (results.value.length) {
     const translated = results.value.map((item) => item.dst).join('\n');
     if (translated) text.value = translated;
@@ -92,18 +116,29 @@ function swapLanguages() {
   }
 }
 
-async function doTranslate() {
+async function doTranslate(isAuto = false) {
   const content = text.value.trim();
-  if (!content) return ElMessage.warning('请输入要翻译的文本');
-  if (from.value === to.value) return ElMessage.warning('源语言和目标语言相同');
+  // 自动翻译静默跳过，不打扰输入；手动翻译给出明确提示
+  if (!content) {
+    if (!isAuto) ElMessage.warning('请输入要翻译的文本');
+    return;
+  }
+  if (from.value === to.value) {
+    if (!isAuto) ElMessage.warning('源语言和目标语言相同');
+    return;
+  }
+  const key = translateKey();
+  if (key === lastTranslateKey) return;
 
+  lastTranslateKey = key;
   loading.value = true;
   try {
     const result = await translateText({ text: content, from: from.value, to: to.value });
     results.value = result.items;
     if (!results.value.length) ElMessage.info('翻译结果为空');
   } catch {
-    // 错误提示由 request 拦截器统一弹出
+    // 失败后重置键，下次输入变化能自动重试；错误提示由 request 拦截器统一弹出
+    lastTranslateKey = '';
   } finally {
     loading.value = false;
   }
