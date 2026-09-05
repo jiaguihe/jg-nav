@@ -34,8 +34,9 @@ description: "Generates git commit messages following Conventional Commits for t
 
 | scope | 范围 |
 |-------|------|
-| nav-pc | 前端项目 `nav-pc/` |
-| nav-services | 后端项目 `nav-services/` |
+| nav-pc | 前端项目 `apps/nav-pc/` |
+| nav-services | 后端项目 `apps/nav-services/` |
+| api-types | 共享类型包 `packages/api-types/` |
 | repo | 仓库级：根目录、文档、构建脚本、CI |
 
 - 只改一个包：单 scope，如 `fix(nav-services): ...`

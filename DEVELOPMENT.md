@@ -6,15 +6,20 @@
 
 ```
 jg-nav/
-├── nav-pc/          # 前端：Vue 3 + TS + Vite + Element Plus
-├── nav-services/    # 后端：NestJS + TypeORM + MySQL
-├── DEVELOPMENT.md   # 本文档
-└── .trae/skills/    # AI 辅助规范（提交命名等）
+├── apps/
+│   ├── nav-pc/          # 前端：Vue 3 + TS + Vite + Element Plus
+│   └── nav-services/    # 后端：NestJS + TypeORM + MySQL
+├── packages/
+│   └── api-types/       # 前后端共享接口类型包 @jg/api-types
+├── AGENTS.md            # Agent 强制规则摘要
+├── DEVELOPMENT.md       # 本文档
+└── .zcode/skills/       # AI 辅助 skill（提交命名等）
 ```
 
 约定：
 
-- 前后端各自独立安装依赖（非 pnpm workspace），根目录 `package.json` 只放启动/构建的快捷命令
+- pnpm workspace 管理依赖，根目录 `package.json` 只放 dev / build / lint 等快捷命令
+- 修改接口：先改 `packages/api-types/src`，再改后端实现，前端类型自动同步
 - 公共问题不改两边各一套：前端只关心 API 契约，后端只关心数据与业务
 - 新功能先想清楚落在哪个模块，避免"功能越界"（如前端做权限判断、后端做样式文案）
 
@@ -22,8 +27,8 @@ jg-nav/
 
 | 对象 | 规范 | 示例 |
 |------|------|------|
-| 目录 | kebab-case | `nav-services/`、`login-register/`（新增目录时遵守） |
-| Vue 组件文件 | 组件用 PascalCase，页面用 camelCase | `ShowLinks.vue`（组件）、`homePage.vue`（页面） |
+| 目录 | kebab-case | `api-types/`、`login-register/`（新增目录时遵守） |
+| Vue 组件文件 | 组件用 PascalCase，页面用 camelCase | `LinkCard.vue`（组件）、`navPage.vue`（页面） |
 | 变量 / 函数 | camelCase，函数用动词开头 | `getLinks`、`handleAdd`、`removeLink` |
 | 常量 | SCREAMING_SNAKE_CASE | `MAX_RETRY_COUNT` |
 | 类型 / 接口 | PascalCase，接口可加 `I` 前缀或不加（二选一保持统一） | `Link`、`ResponseDto` |
@@ -44,14 +49,15 @@ jg-nav/
 
 ### 3.2 状态与数据流
 
-- 组件内状态用 `ref`/`reactive`；跨组件流转优先 props/emit，复杂共享状态用 Pinia（已引入）
-- 用户登录态：`userInfo` cookie + `token` localStorage，读写集中在组件方法里，不要散落各处
+- 组件内状态用 `ref`/`reactive`；跨组件流转优先 props/emit；服务端状态用 TanStack Query（缓存 + 自动失效刷新）；复杂共享状态用 Pinia
+- 登录态：token 由后端写入 httpOnly Cookie（`jg_token`），前端零 token 管理；会话恢复走 `GET /api/user/me`，不依赖本地缓存判断登录
 - 定时器、事件监听必须在 `onUnmounted` 清理
 
 ### 3.3 API 层
 
 - 所有请求只写在 `src/services/` 下，组件不直接使用 axios
 - 新接口按现有风格导出函数：`export function xxx() { return service.xxx(...) }`
+- 请求 / 响应类型从 `@jg/api-types` 导入，不在前端重复定义
 - 静态资源一律 `import img from '@/assets/...'`，禁止字符串路径（打包会失效）
 
 ### 3.4 UI
@@ -63,13 +69,12 @@ jg-nav/
 
 ### 4.1 模块结构
 
-新业务模块按现有 links 模块的结构组织：
+公共设施在 `src/common/`（全局异常过滤器、`ResponseDto`、`JwtAuthGuard`），业务模块在 `src/modules/<name>/`，现有模块：user、link、takeaway、todo、note、memorial。新模块按现有结构组织：
 
 ```
-module/<name>/
+modules/<name>/
 ├── dto/           # 入参校验（create-xxx.dto.ts / update-xxx.dto.ts）
 ├── entities/      # TypeORM 实体
-├── guards/        # 守卫（跨模块放 user/guards）
 ├── <name>.controller.ts
 ├── <name>.service.ts
 └── <name>.module.ts
@@ -82,6 +87,7 @@ module/<name>/
 
 - 统一前缀 `/api`（`main.ts` 全局设置），统一返回 `ResponseDto { code, message, data }`
 - `code = 0` 成功，`code = -1` 失败（前端拦截器依赖此约定）
+- 会话：JWT 存 httpOnly Cookie `jg_token`，`JwtAuthGuard` 从 Cookie 读取（兼容 Authorization 头）
 - 写操作（增删改）和读他人数据的接口必须加 `@UseGuards(JwtAuthGuard)`
 - 涉及资源归属的操作（改/删/查他人数据），必须校验 `req.user.id` 与资源 `userId` 一致
 
@@ -103,13 +109,13 @@ module/<name>/
 
 - 主干分支 `master`，日常小改动直接提交到 master
 - 较大功能或重构：从 master 拉 `feat/xxx` 或 `fix/xxx` 分支，完成后合回
-- **提交命名规范见 `.trae/skills/commit-spec/SKILL.md`**，核心格式：
+- **提交命名规范见 `.zcode/skills/commit-spec/SKILL.md`**，核心格式：
 
 ```
 <type>(<scope>): <subject>
 ```
 
-- scope 只用 `nav-pc` / `nav-services` / `repo`
+- scope 只用 `nav-pc` / `nav-services` / `api-types` / `repo`
 - 不相关的改动拆成多个提交，一次提交只做一件事
 
 ## 7. 安全红线（个人项目也要守）
