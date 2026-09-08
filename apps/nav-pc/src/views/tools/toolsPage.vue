@@ -13,60 +13,85 @@
       </button>
     </div>
 
-    <!-- 单一网格渲染全部工具：v-show + order 切换视图，面板实例不销毁，切分组不丢状态 -->
-    <div class="tools-grid">
-      <div
-        v-for="tool in tools"
-        :key="tool.id"
-        v-show="visibleIds.has(tool.id)"
-        class="tool-card glass-panel fade-up"
-        :class="{
-          'span-2': tool.isWide,
-          'is-dragging': dragId === tool.id,
-          'is-drag-over': dragOverId === tool.id
-        }"
-        :style="{
-          order: orderOf(tool.id),
-          animationDelay: `${orderOf(tool.id) * 60}ms`
-        }"
-        @dragover.prevent="handleDragOver(tool.id)"
-        @drop.prevent="handleDrop(tool.id)"
-      >
-        <div class="fav-actions">
-          <el-icon
-            v-if="activeGroup === 'favorites'"
-            class="drag-handle"
+    <!-- 常用：统一尺寸紧凑卡片，整卡可拖拽排序，点击就地展开面板 -->
+    <div v-show="activeGroup === 'favorites'" class="fav-section">
+      <div v-if="favorites.length === 0" class="fav-empty glass-panel fade-up">
+        还没有常用工具，到各分组里点亮工具面板右上角的星标即可固定到这里
+      </div>
+      <template v-else>
+        <div class="fav-grid">
+          <div
+            v-for="id in favorites"
+            :key="id"
+            class="fav-card glass-panel fade-up"
+            :class="{
+              'is-expanded': expandedId === id,
+              'is-dragging': dragId === id,
+              'is-drag-over': dragOverId === id
+            }"
             draggable="true"
-            title="拖动调整顺序"
-            @dragstart="handleDragStart(tool.id, $event)"
+            @click="toggleExpand(id)"
+            @dragstart="handleDragStart(id, $event)"
             @dragend="handleDragEnd"
+            @dragover.prevent="handleDragOver(id)"
+            @drop.prevent="handleDrop(id)"
           >
-            <Rank />
-          </el-icon>
-          <button
-            class="fav-btn"
-            :class="{ active: isFavorite(tool.id) }"
-            :title="isFavorite(tool.id) ? '从常用移除' : '固定到常用'"
-            @click="toggleFavorite(tool)"
-          >
-            <el-icon>
-              <StarFilled v-if="isFavorite(tool.id)" />
-              <Star v-else />
+            <span class="fav-emoji">{{ toolOf(id).emoji }}</span>
+            <span class="fav-name">{{ toolOf(id).label }}</span>
+            <el-icon
+              class="fav-remove"
+              title="从常用移除"
+              @click.stop="removeFavorite(id)"
+            >
+              <Close />
             </el-icon>
-          </button>
+          </div>
         </div>
+
+        <div v-if="expandedTool" class="tool-card glass-panel expand-card fade-up">
+          <button class="collapse-btn" title="收起" @click="expandedId = ''">
+            <el-icon><Close /></el-icon>
+          </button>
+          <KeepAlive>
+            <component
+              :is="expandedTool.component"
+              :key="expandedTool.id"
+              v-if="!expandedTool.requiresLogin || userStore.user"
+            />
+          </KeepAlive>
+          <div v-if="expandedTool.requiresLogin && !userStore.user" class="login-tip">
+            <el-link :underline="false" @click="openLogin">登录后使用{{ expandedTool.label }}</el-link>
+          </div>
+        </div>
+      </template>
+    </div>
+
+    <!-- 其余分组：完整面板平铺（单实例，切分组不丢状态） -->
+    <div v-show="activeGroup !== 'favorites'" class="tools-grid">
+      <div
+        v-for="(tool, index) in tools"
+        :key="tool.id"
+        v-show="activeGroup === tool.group"
+        class="tool-card glass-panel fade-up"
+        :class="{ 'span-2': tool.isWide }"
+        :style="{ animationDelay: `${index * 60}ms` }"
+      >
+        <button
+          class="fav-btn"
+          :class="{ active: isFavorite(tool.id) }"
+          :title="isFavorite(tool.id) ? '从常用移除' : '固定到常用'"
+          @click="toggleFavorite(tool)"
+        >
+          <el-icon>
+            <StarFilled v-if="isFavorite(tool.id)" />
+            <Star v-else />
+          </el-icon>
+        </button>
 
         <component :is="tool.component" v-if="!tool.requiresLogin || userStore.user" />
         <div v-else class="login-tip">
           <el-link :underline="false" @click="openLogin">登录后使用{{ tool.label }}</el-link>
         </div>
-      </div>
-
-      <div
-        v-if="activeGroup === 'favorites' && favorites.length === 0"
-        class="fav-empty glass-panel span-2 fade-up"
-      >
-        还没有常用工具，点击任意工具卡片右上角的星标即可固定到这里
       </div>
     </div>
   </div>
@@ -83,7 +108,7 @@ import {
   Picture,
   Star,
   StarFilled,
-  Rank
+  Close
 } from '@element-plus/icons-vue';
 import { useUserStore } from '@/stores/user';
 import TodoPanel from './components/TodoPanel.vue';
@@ -111,6 +136,7 @@ type GroupKey = (typeof groups)[number]['key'];
 interface ToolMeta {
   id: string;
   label: string;
+  emoji: string;
   group: Exclude<GroupKey, 'favorites'>;
   component: Component;
   /** 是否占满整行 */
@@ -119,15 +145,15 @@ interface ToolMeta {
 }
 
 const tools: ToolMeta[] = [
-  { id: 'todo', label: '待办清单', group: 'productivity', component: TodoPanel, isWide: false, requiresLogin: true },
-  { id: 'note', label: '便签速记', group: 'productivity', component: NotePanel, isWide: false, requiresLogin: true },
-  { id: 'memorial', label: '纪念日倒计时', group: 'productivity', component: MemorialPanel, isWide: false, requiresLogin: true },
-  { id: 'pomodoro', label: '番茄钟', group: 'productivity', component: PomodoroPanel, isWide: false, requiresLogin: true },
-  { id: 'json', label: 'JSON 工具', group: 'dev', component: JsonPanel, isWide: true, requiresLogin: false },
-  { id: 'timestamp', label: '时间戳转换', group: 'dev', component: TimestampPanel, isWide: false, requiresLogin: false },
-  { id: 'url', label: 'URL 编解码', group: 'dev', component: UrlPanel, isWide: false, requiresLogin: false },
-  { id: 'translate', label: '翻译', group: 'translate', component: TranslatePanel, isWide: true, requiresLogin: true },
-  { id: 'image', label: '图片下载', group: 'image', component: ImageDownloadPanel, isWide: true, requiresLogin: false }
+  { id: 'todo', label: '待办清单', emoji: '📝', group: 'productivity', component: TodoPanel, isWide: false, requiresLogin: true },
+  { id: 'note', label: '便签速记', emoji: '🗒️', group: 'productivity', component: NotePanel, isWide: false, requiresLogin: true },
+  { id: 'memorial', label: '纪念日倒计时', emoji: '⏳', group: 'productivity', component: MemorialPanel, isWide: false, requiresLogin: true },
+  { id: 'pomodoro', label: '番茄钟', emoji: '🍅', group: 'productivity', component: PomodoroPanel, isWide: false, requiresLogin: true },
+  { id: 'json', label: 'JSON 工具', emoji: '🔧', group: 'dev', component: JsonPanel, isWide: true, requiresLogin: false },
+  { id: 'timestamp', label: '时间戳转换', emoji: '⏱️', group: 'dev', component: TimestampPanel, isWide: false, requiresLogin: false },
+  { id: 'url', label: 'URL 编解码', emoji: '🔗', group: 'dev', component: UrlPanel, isWide: false, requiresLogin: false },
+  { id: 'translate', label: '翻译', emoji: '🌍', group: 'translate', component: TranslatePanel, isWide: true, requiresLogin: true },
+  { id: 'image', label: '图片下载', emoji: '🖼️', group: 'image', component: ImageDownloadPanel, isWide: true, requiresLogin: false }
 ];
 
 const PREF_KEY = 'jg-tools-preference';
@@ -135,6 +161,8 @@ const PREF_KEY = 'jg-tools-preference';
 interface ToolsPreference {
   favorites: string[];
   lastGroup: GroupKey;
+  /** 常用栏内当前展开的工具 */
+  expandedId: string;
 }
 
 function loadPreference(): ToolsPreference {
@@ -150,41 +178,37 @@ function loadPreference(): ToolsPreference {
       : favorites.length > 0
         ? 'favorites'
         : 'productivity';
-    return { favorites, lastGroup };
+    const expandedId = favorites.includes(saved.expandedId ?? '') ? (saved.expandedId as string) : '';
+    return { favorites, lastGroup, expandedId };
   } catch {
-    return { favorites: [], lastGroup: 'productivity' };
+    return { favorites: [], lastGroup: 'productivity', expandedId: '' };
   }
 }
 
 const initialPreference = loadPreference();
 const favorites = ref<string[]>(initialPreference.favorites);
 const activeGroup = ref<GroupKey>(initialPreference.lastGroup);
+const expandedId = ref(initialPreference.expandedId);
 const dragId = ref('');
 const dragOverId = ref('');
 const userStore = useUserStore();
 const openLogin = inject<() => void>('openLogin', () => {});
 
-watch([favorites, activeGroup], () => {
+watch([favorites, activeGroup, expandedId], () => {
   localStorage.setItem(
     PREF_KEY,
     JSON.stringify({
       favorites: favorites.value,
-      lastGroup: activeGroup.value
+      lastGroup: activeGroup.value,
+      expandedId: expandedId.value
     } satisfies ToolsPreference)
   );
 });
 
-// 当前视图下工具的先后顺序：常用按收藏顺序（可拖拽调整），其余分组按注册顺序
-const visibleOrder = computed(() =>
-  activeGroup.value === 'favorites'
-    ? favorites.value
-    : tools.filter(tool => tool.group === activeGroup.value).map(tool => tool.id)
-);
-const visibleIds = computed(() => new Set(visibleOrder.value));
+const expandedTool = computed(() => tools.find(tool => tool.id === expandedId.value));
 
-function orderOf(id: string): number {
-  const index = visibleOrder.value.indexOf(id);
-  return index === -1 ? 999 : index;
+function toolOf(id: string): ToolMeta {
+  return tools.find(tool => tool.id === id) ?? tools[0];
 }
 
 function isFavorite(id: string): boolean {
@@ -200,6 +224,18 @@ function toggleFavorite(tool: ToolMeta) {
     favorites.value.push(tool.id);
     ElMessage.success(`已把「${tool.label}」固定到常用`);
   }
+}
+
+function removeFavorite(id: string) {
+  favorites.value.splice(favorites.value.indexOf(id), 1);
+  if (expandedId.value === id) {
+    expandedId.value = '';
+  }
+  ElMessage.success(`已把「${toolOf(id).label}」移出常用`);
+}
+
+function toggleExpand(id: string) {
+  expandedId.value = expandedId.value === id ? '' : id;
 }
 
 function handleDragStart(id: string, event: DragEvent) {
@@ -277,6 +313,79 @@ function clearDragState() {
   }
 }
 
+.fav-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.fav-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 30px 13px 16px;
+  border-radius: 14px;
+  user-select: none;
+  cursor: grab;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+
+    .fav-remove {
+      opacity: 1;
+    }
+  }
+
+  &:active {
+    cursor: grabbing;
+  }
+
+  &.is-expanded {
+    border-color: var(--el-color-primary);
+  }
+}
+
+.fav-emoji {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.fav-name {
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-1);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.fav-remove {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  padding: 3px;
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--text-3);
+  cursor: pointer;
+  opacity: 0;
+  transition:
+    opacity 0.2s ease,
+    color 0.2s ease,
+    background 0.2s ease;
+
+  &:hover {
+    background: var(--hover-bg);
+    color: var(--el-color-danger);
+  }
+}
+
 .tools-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -285,42 +394,20 @@ function clearDragState() {
 
 .tool-card {
   position: relative;
-  // 右侧给星标与拖拽手柄留位
-  padding: 16px 66px 16px 18px;
+  // 右侧给星标留位
+  padding: 16px 46px 16px 18px;
 }
 
 .span-2 {
   grid-column: 1 / -1;
 }
 
-.fav-actions {
+.fav-btn,
+.collapse-btn {
   position: absolute;
   top: 13px;
   right: 10px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
   z-index: 2;
-}
-
-.drag-handle {
-  padding: 4px;
-  border-radius: 6px;
-  font-size: 16px;
-  color: var(--text-3);
-  cursor: grab;
-
-  &:hover {
-    background: var(--hover-bg);
-    color: var(--text-1);
-  }
-
-  &:active {
-    cursor: grabbing;
-  }
-}
-
-.fav-btn {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -344,15 +431,19 @@ function clearDragState() {
     color: var(--text-1);
     opacity: 1;
   }
+}
 
-  &.active {
-    opacity: 1;
+.fav-btn.active {
+  opacity: 1;
+  color: var(--el-color-warning);
+
+  &:hover {
     color: var(--el-color-warning);
-
-    &:hover {
-      color: var(--el-color-warning);
-    }
   }
+}
+
+.collapse-btn {
+  opacity: 0.6;
 }
 
 .is-dragging {
