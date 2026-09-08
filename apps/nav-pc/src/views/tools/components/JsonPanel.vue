@@ -35,6 +35,7 @@
       <el-button size="small" @click="minify">压缩</el-button>
       <el-button size="small" @click="sortKeys">键名排序</el-button>
       <el-button size="small" @click="fromJsObject">对象转 JSON</el-button>
+      <el-button size="small" @click="jsonToJs">JSON 转对象</el-button>
       <el-button size="small" @click="escapeJson">转义</el-button>
       <el-button size="small" @click="unescapeJson">去转义</el-button>
       <el-button size="small" round @click="copyOutput">复制结果</el-button>
@@ -130,6 +131,52 @@ function fromJsObject() {
   } catch {
     status.value = { type: 'error', text: '不是合法的对象字面量' };
     ElMessage.error('不是合法的 JS 对象字面量');
+  }
+}
+
+/** 是否能作为 JS 对象的裸键名（不含引号） */
+function isBareKey(key: string): boolean {
+  return /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(key);
+}
+
+function quoteJsString(text: string): string {
+  return `'${text
+    .replace(/\\/g, '\\\\')
+    .replace(/'/g, "\\'")
+    .replace(/\r/g, '\\r')
+    .replace(/\n/g, '\\n')}'`;
+}
+
+/** JSON → JS 对象字面量：合法键名去引号、字符串换单引号，可直接贴进代码 */
+function stringifyJs(value: unknown, indent: number, level: number): string {
+  const pad = ' '.repeat(indent * (level + 1));
+  const closePad = ' '.repeat(indent * level);
+  if (typeof value === 'string') return quoteJsString(value);
+  if (value === null || typeof value === 'number' || typeof value === 'boolean') {
+    return String(value);
+  }
+  if (Array.isArray(value)) {
+    if (value.length === 0) return '[]';
+    const items = value.map((item) => stringifyJs(item, indent, level + 1));
+    return `[\n${items.map((item) => `${pad}${item}`).join(',\n')}\n${closePad}]`;
+  }
+  const entries = Object.entries(value as Record<string, unknown>);
+  if (entries.length === 0) return '{}';
+  const lines = entries.map(
+    ([key, val]) =>
+      `${pad}${isBareKey(key) ? key : quoteJsString(key)}: ${stringifyJs(val, indent, level + 1)}`
+  );
+  return `{\n${lines.join(',\n')}\n${closePad}}`;
+}
+
+function jsonToJs() {
+  if (!input.value.trim()) return ElMessage.warning('请先输入 JSON');
+  try {
+    const value = parseInput();
+    output.value = stringifyJs(value, indent.value, 0);
+    status.value = { type: 'ok', text: '已转为 JS 对象字面量' };
+  } catch {
+    ElMessage.error('JSON 不合法，无法转换');
   }
 }
 
