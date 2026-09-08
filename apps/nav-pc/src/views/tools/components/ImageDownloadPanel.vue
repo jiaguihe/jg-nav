@@ -17,12 +17,18 @@
     </el-input>
 
     <div class="img-preview">
-      <img
+      <el-image
         v-if="imageUrl.trim() && !previewError"
         :key="imageUrl"
         :src="imageUrl.trim()"
         referrerpolicy="no-referrer"
+        fit="contain"
+        :preview-src-list="[imageUrl.trim()]"
+        :initial-index="0"
+        preview-teleported
+        :z-index="2400"
         alt="图片预览"
+        class="preview-img"
         @error="previewError = true"
       />
       <div v-else class="preview-empty">输入地址后这里显示预览</div>
@@ -153,11 +159,15 @@ function openInNewTab() {
     border: 1px solid var(--inner-border);
     overflow: hidden;
 
-    img {
+    .preview-img {
       max-width: 100%;
       max-height: 220px;
-      object-fit: contain;
       border-radius: 8px;
+      cursor: zoom-in;
+
+      :deep(img) {
+        max-height: 220px;
+      }
     }
 
     .preview-empty,

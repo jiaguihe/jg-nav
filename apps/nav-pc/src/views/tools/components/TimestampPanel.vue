@@ -5,13 +5,15 @@
     </div>
 
     <div class="now-box">
-      <div class="now-row" @click="copyText(String(nowMs), '毫秒时间戳已复制')">
+      <div class="now-row" title="点击复制" @click="copyText(String(nowMs), '毫秒时间戳已复制')">
         <span class="now-label">毫秒</span>
         <span class="now-value">{{ nowMs }}</span>
+        <el-icon class="copy-hint"><CopyDocument /></el-icon>
       </div>
-      <div class="now-row" @click="copyText(String(nowSeconds), '秒级时间戳已复制')">
+      <div class="now-row" title="点击复制" @click="copyText(String(nowSeconds), '秒级时间戳已复制')">
         <span class="now-label">秒级</span>
         <span class="now-value">{{ nowSeconds }}</span>
+        <el-icon class="copy-hint"><CopyDocument /></el-icon>
       </div>
       <div class="now-date">{{ nowText }}</div>
     </div>
@@ -28,7 +30,14 @@
         <el-button type="primary" size="small" @click="tsToDate">转日期</el-button>
       </div>
       <div v-if="tsResult" class="convert-result">
-        <div class="result-line main">{{ tsResult.local }}</div>
+        <div
+          class="result-line main clickable"
+          title="点击复制"
+          @click="copyText(tsResult.local, '日期时间已复制')"
+        >
+          {{ tsResult.local }}
+          <el-icon class="copy-hint"><CopyDocument /></el-icon>
+        </div>
         <div class="result-line">
           {{ tsResult.weekday }} · {{ tsResult.relative }} · UTC {{ tsResult.utc }}
           <span class="unit-tip">（识别为{{ tsResult.unit }}）</span>
@@ -60,6 +69,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { ElMessage } from 'element-plus';
+import { CopyDocument } from '@element-plus/icons-vue';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -152,8 +162,22 @@ onUnmounted(() => window.clearInterval(timer));
         margin-top: 6px;
       }
 
-      &:hover .now-value {
-        color: var(--el-color-primary);
+      &:hover {
+        .now-value {
+          color: var(--el-color-primary);
+        }
+
+        .copy-hint {
+          opacity: 1;
+        }
+      }
+
+      .copy-hint {
+        margin-left: auto;
+        font-size: 13px;
+        color: var(--text-3);
+        opacity: 0;
+        transition: opacity 0.2s ease;
       }
 
       .now-label {
@@ -208,8 +232,22 @@ onUnmounted(() => window.clearInterval(timer));
         line-height: 1.8;
 
         &.main {
+          display: flex;
+          align-items: center;
+          gap: 6px;
           font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
           font-weight: 600;
+
+          .copy-hint {
+            font-size: 13px;
+            color: var(--text-3);
+            opacity: 0;
+            transition: opacity 0.2s ease;
+          }
+
+          &:hover .copy-hint {
+            opacity: 1;
+          }
         }
 
         .unit-tip {

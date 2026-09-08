@@ -21,8 +21,12 @@
           </div>
           <div class="memorial-date">{{ displayDate(item) }}</div>
         </div>
-        <div class="memorial-days">
+        <div class="memorial-days" :class="{ past: daysUntil(item) < 0 }">
           <template v-if="daysUntil(item) === 0">今天</template>
+          <template v-else-if="daysUntil(item) < 0">
+            <span class="days-num">{{ -daysUntil(item) }}</span>
+            <span class="days-unit">天前</span>
+          </template>
           <template v-else>
             <span class="days-num">{{ daysUntil(item) }}</span>
             <span class="days-unit">天</span>
@@ -32,7 +36,7 @@
           <Close />
         </el-icon>
       </div>
-      <div v-if="memorials.length === 0" class="memorial-empty">
+      <div v-if="memorials.length === 0" class="panel-empty">
         添加假期、生日、纪念日，看看还剩几天
       </div>
     </div>
@@ -81,7 +85,14 @@ const queryClient = useQueryClient();
 const enabled = computed(() => !!userStore.user);
 
 const { data } = useQuery({ queryKey: ['memorials'], queryFn: fetchMemorials, enabled });
-const memorials = computed(() => data.value ?? []);
+// 临近的排前面，已过期的沉底
+const memorials = computed(() =>
+  [...(data.value ?? [])].sort((a, b) => {
+    const da = daysUntil(a);
+    const db = daysUntil(b);
+    return (da < 0 ? 10000 + -da : da) - (db < 0 ? 10000 + -db : db);
+  })
+);
 
 const dialogVisible = ref(false);
 const form = reactive({ name: '', targetDate: '', repeatYearly: false });
@@ -205,6 +216,15 @@ function confirmRemove(item: MemorialVO) {
         color: var(--accent);
         font-size: 13px;
 
+        &.past {
+          color: var(--text-3);
+
+          .days-num {
+            font-size: 18px;
+            font-weight: 600;
+          }
+        }
+
         .days-num {
           font-size: 24px;
           font-weight: 700;
@@ -229,13 +249,6 @@ function confirmRemove(item: MemorialVO) {
           color: var(--el-color-danger);
         }
       }
-    }
-
-    .memorial-empty {
-      padding: 26px 0;
-      text-align: center;
-      font-size: 13px;
-      color: var(--text-3);
     }
   }
 }

@@ -43,7 +43,13 @@
         <el-descriptions-item label="锚点" :span="2">{{ parsed.hash || '（无）' }}</el-descriptions-item>
       </el-descriptions>
 
-      <el-table v-if="parsed.params.length" :data="parsed.params" size="small" class="param-table">
+      <el-table
+        v-if="parsed.params.length"
+        :data="parsed.params"
+        size="small"
+        :max-height="220"
+        class="param-table"
+      >
         <el-table-column prop="key" label="参数" min-width="120" show-overflow-tooltip />
         <el-table-column prop="value" label="值" min-width="180" show-overflow-tooltip />
       </el-table>

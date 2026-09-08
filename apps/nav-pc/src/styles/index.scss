@@ -154,6 +154,14 @@ html.dark .el-drawer {
   }
 }
 
+// 工具页面板通用空态占位
+.panel-empty {
+  padding: 26px 0;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-3);
+}
+
 // 卡片入场：列表错落上浮
 @keyframes fade-up {
   from {

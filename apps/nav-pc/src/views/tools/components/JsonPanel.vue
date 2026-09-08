@@ -23,6 +23,7 @@
       <div class="io-col">
         <div class="io-label">
           输出
+          <span v-if="output" class="io-size">{{ output.length }} 字符</span>
           <span v-if="status" class="io-status" :class="status.type">{{ status.text }}</span>
         </div>
         <el-input v-model="output" type="textarea" :rows="10" class="code-input" readonly />
@@ -32,6 +33,7 @@
     <div class="json-actions">
       <el-button type="primary" size="small" @click="format">格式化</el-button>
       <el-button size="small" @click="minify">压缩</el-button>
+      <el-button size="small" @click="sortKeys">键名排序</el-button>
       <el-button size="small" @click="fromJsObject">对象转 JSON</el-button>
       <el-button size="small" @click="escapeJson">转义</el-button>
       <el-button size="small" @click="unescapeJson">去转义</el-button>
@@ -89,6 +91,31 @@ function minify() {
     output.value = JSON.stringify(parseInput());
   } catch {
     ElMessage.error('JSON 不合法，无法压缩');
+  }
+}
+
+/** 递归按 key 字典序排列对象键，数组顺序保持不变 */
+function sortKeysDeep(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(sortKeysDeep);
+  if (value && typeof value === 'object') {
+    return Object.keys(value as Record<string, unknown>)
+      .sort()
+      .reduce<Record<string, unknown>>((acc, key) => {
+        acc[key] = sortKeysDeep((value as Record<string, unknown>)[key]);
+        return acc;
+      }, {});
+  }
+  return value;
+}
+
+function sortKeys() {
+  if (!input.value.trim()) return ElMessage.warning('请先输入 JSON');
+  try {
+    const value = parseInput();
+    output.value = JSON.stringify(sortKeysDeep(value), null, indent.value);
+    status.value = { type: 'ok', text: '已按键名排序' };
+  } catch {
+    ElMessage.error('JSON 不合法，无法排序');
   }
 }
 
@@ -170,6 +197,12 @@ function clearAll() {
       display: flex;
       align-items: center;
       gap: 8px;
+
+      .io-size {
+        font-size: 12px;
+        color: var(--text-3);
+        font-variant-numeric: tabular-nums;
+      }
 
       .io-status {
         font-size: 12px;

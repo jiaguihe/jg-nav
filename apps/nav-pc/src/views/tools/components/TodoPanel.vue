@@ -24,15 +24,30 @@
         <div v-for="todo in todos" :key="todo.id" class="todo-item">
           <el-checkbox
             :model-value="todo.done"
+            :disabled="editingId === todo.id"
             @change="handleToggle(todo)"
           />
-          <span class="todo-content" :class="{ done: todo.done }">
+          <el-input
+            v-if="editingId === todo.id"
+            v-model="editDraft"
+            v-focus
+            size="small"
+            maxlength="200"
+            placeholder="修改后回车保存，Esc 取消"
+            @keydown.enter="saveEdit(todo)"
+            @keydown.esc="cancelEdit"
+            @blur="saveEdit(todo)"
+          />
+          <span v-else class="todo-content" :class="{ done: todo.done }">
             {{ todo.content }}
           </span>
-          <el-icon class="todo-remove" @click="handleRemove(todo)"><Close /></el-icon>
+          <template v-if="editingId !== todo.id">
+            <el-icon class="todo-edit" title="编辑" @click="startEdit(todo)"><Edit /></el-icon>
+            <el-icon class="todo-remove" title="删除" @click="handleRemove(todo)"><Close /></el-icon>
+          </template>
         </div>
       </TransitionGroup>
-      <div v-if="todos.length === 0" class="todo-empty">
+      <div v-if="todos.length === 0" class="panel-empty">
         今天没有待办，喝口水休息一下 ☕
       </div>
     </div>
@@ -50,7 +65,7 @@
 import { ref, computed } from 'vue';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query';
 import { ElMessage } from 'element-plus';
-import { Plus, Close } from '@element-plus/icons-vue';
+import { Plus, Close, Edit } from '@element-plus/icons-vue';
 import type { TodoVO } from '@jg/api-types';
 import {
   fetchTodos,
@@ -97,6 +112,35 @@ function handleRemove(todo: TodoVO) {
   removeTodo(todo.id).then(invalidate);
 }
 
+/** 行内编辑：进入时带出原文，保存走后端，取消还原 */
+const editingId = ref(0);
+const editDraft = ref('');
+
+// 挂载时聚焦行内编辑框（script setup 局部指令）
+const vFocus = {
+  mounted: (el: HTMLElement) => el.querySelector('input')?.focus()
+};
+
+function startEdit(todo: TodoVO) {
+  editingId.value = todo.id;
+  editDraft.value = todo.content;
+}
+
+function cancelEdit() {
+  editingId.value = 0;
+  editDraft.value = '';
+}
+
+async function saveEdit(todo: TodoVO) {
+  if (editingId.value !== todo.id) return;
+  const content = editDraft.value.trim();
+  editingId.value = 0;
+  editDraft.value = '';
+  if (!content || content === todo.content) return;
+  await updateTodo(todo.id, { content });
+  invalidate();
+}
+
 async function handleClearDone() {
   await Promise.all(
     todos.value.filter((t) => t.done).map((t) => removeTodo(t.id))
@@ -135,6 +179,7 @@ async function handleClearDone() {
       &:hover {
         background: var(--hover-bg);
 
+        .todo-edit,
         .todo-remove {
           opacity: 1;
         }
@@ -152,23 +197,22 @@ async function handleClearDone() {
         }
       }
 
+      .todo-edit,
       .todo-remove {
         font-size: 13px;
         color: var(--text-3);
         cursor: pointer;
         opacity: 0;
-
-        &:hover {
-          color: var(--el-color-danger);
-        }
+        flex-shrink: 0;
       }
-    }
 
-    .todo-empty {
-      padding: 26px 0;
-      text-align: center;
-      font-size: 13px;
-      color: var(--text-3);
+      .todo-edit:hover {
+        color: var(--el-color-primary);
+      }
+
+      .todo-remove:hover {
+        color: var(--el-color-danger);
+      }
     }
   }
 

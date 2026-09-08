@@ -26,7 +26,7 @@
           </el-icon>
         </div>
       </div>
-      <div v-if="notes.length === 0" class="note-empty">
+      <div v-if="notes.length === 0" class="panel-empty">
         随手记点什么：快递单号、临时想法…
       </div>
     </div>
@@ -179,13 +179,6 @@ function confirmRemove(note: NoteVO) {
       &:hover .note-remove {
         opacity: 1;
       }
-    }
-
-    .note-empty {
-      padding: 26px 0;
-      text-align: center;
-      font-size: 13px;
-      color: var(--text-3);
     }
   }
 }

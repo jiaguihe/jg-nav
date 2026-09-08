@@ -148,7 +148,8 @@ const tools: ToolMeta[] = [
   { id: 'todo', label: '待办清单', emoji: '📝', group: 'productivity', component: TodoPanel, isWide: false, requiresLogin: true },
   { id: 'note', label: '便签速记', emoji: '🗒️', group: 'productivity', component: NotePanel, isWide: false, requiresLogin: true },
   { id: 'memorial', label: '纪念日倒计时', emoji: '⏳', group: 'productivity', component: MemorialPanel, isWide: false, requiresLogin: true },
-  { id: 'pomodoro', label: '番茄钟', emoji: '🍅', group: 'productivity', component: PomodoroPanel, isWide: false, requiresLogin: true },
+  // 番茄钟为纯本地工具（localStorage 计数），无需登录
+  { id: 'pomodoro', label: '番茄钟', emoji: '🍅', group: 'productivity', component: PomodoroPanel, isWide: false, requiresLogin: false },
   { id: 'json', label: 'JSON 工具', emoji: '🔧', group: 'dev', component: JsonPanel, isWide: true, requiresLogin: false },
   { id: 'timestamp', label: '时间戳转换', emoji: '⏱️', group: 'dev', component: TimestampPanel, isWide: false, requiresLogin: false },
   { id: 'url', label: 'URL 编解码', emoji: '🔗', group: 'dev', component: UrlPanel, isWide: false, requiresLogin: false },

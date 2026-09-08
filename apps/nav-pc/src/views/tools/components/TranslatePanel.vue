@@ -73,8 +73,25 @@ const LANGUAGES = [
   { code: 'pt', label: '葡萄牙语' }
 ] as const;
 
-const from = ref('auto');
-const to = ref('zh');
+// 语言方向记忆：刷新后保持上次选择
+const LANG_KEY = 'jg-translate-lang';
+
+function loadLangPreference(): { from: string; to: string } {
+  try {
+    const saved = JSON.parse(localStorage.getItem(LANG_KEY) ?? '{}');
+    const codes = new Set(LANGUAGES.map((lang) => lang.code));
+    return {
+      from: codes.has(saved.from) ? saved.from : 'auto',
+      to: codes.has(saved.to) ? saved.to : 'zh'
+    };
+  } catch {
+    return { from: 'auto', to: 'zh' };
+  }
+}
+
+const initialLang = loadLangPreference();
+const from = ref(initialLang.from);
+const to = ref(initialLang.to);
 const text = ref('');
 const loading = ref(false);
 const results = ref<{ src: string; dst: string }[]>([]);
@@ -93,6 +110,7 @@ function translateKey() {
 
 watch([text, from, to], () => {
   window.clearTimeout(debounceTimer);
+  localStorage.setItem(LANG_KEY, JSON.stringify({ from: from.value, to: to.value }));
   if (!text.value.trim()) {
     results.value = [];
     lastTranslateKey = '';
