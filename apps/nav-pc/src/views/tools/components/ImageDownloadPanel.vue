@@ -4,45 +4,43 @@
       <span class="panel-title">🖼️ 图片下载</span>
     </div>
 
-    <el-input
-      v-model="imageUrl"
-      class="img-url"
-      placeholder="输入图片地址，如 https://example.com/a.jpg"
-      clearable
-      @keydown.enter="download"
-    >
-      <template #append>
-        <el-button @click="openInNewTab">新窗口打开</el-button>
-      </template>
-    </el-input>
+    <div class="img-layout">
+      <div class="img-preview">
+        <el-image
+          v-if="imageUrl.trim() && !previewError"
+          :key="imageUrl"
+          :src="imageUrl.trim()"
+          referrerpolicy="no-referrer"
+          fit="contain"
+          :preview-src-list="[imageUrl.trim()]"
+          :initial-index="0"
+          preview-teleported
+          :z-index="2400"
+          alt="图片预览"
+          class="preview-img"
+          @error="previewError = true"
+        />
+        <div v-else class="preview-empty">输入地址后这里显示预览</div>
+        <div v-if="previewError" class="preview-failed">预览加载失败（地址无效或防盗链），仍可尝试下载</div>
+      </div>
 
-    <div class="img-preview">
-      <el-image
-        v-if="imageUrl.trim() && !previewError"
-        :key="imageUrl"
-        :src="imageUrl.trim()"
-        referrerpolicy="no-referrer"
-        fit="contain"
-        :preview-src-list="[imageUrl.trim()]"
-        :initial-index="0"
-        preview-teleported
-        :z-index="2400"
-        alt="图片预览"
-        class="preview-img"
-        @error="previewError = true"
-      />
-      <div v-else class="preview-empty">输入地址后这里显示预览</div>
-      <div v-if="previewError" class="preview-failed">预览加载失败（地址无效或防盗链），仍可尝试下载</div>
-    </div>
-
-    <div class="img-actions">
-      <el-input
-        v-model="filename"
-        class="img-name"
-        placeholder="保存文件名（留空自动取 URL 名称）"
-        clearable
-      />
-      <el-button type="primary" round :loading="downloading" @click="download">下载图片</el-button>
+      <div class="img-form">
+        <el-input
+          v-model="imageUrl"
+          placeholder="输入图片地址，如 https://example.com/a.jpg"
+          clearable
+          @keydown.enter="download"
+        />
+        <el-input
+          v-model="filename"
+          placeholder="保存文件名（留空自动取 URL 名称）"
+          clearable
+        />
+        <div class="form-actions">
+          <el-button type="primary" round :loading="downloading" @click="download">下载图片</el-button>
+          <el-button round @click="openInNewTab">新窗口打开</el-button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -142,17 +140,21 @@ function openInNewTab() {
   flex-direction: column;
   height: 100%;
 
-  .img-url {
-    margin: 10px 0;
+  .img-layout {
+    display: grid;
+    grid-template-columns: minmax(180px, 2fr) 3fr;
+    gap: 12px;
+    margin-top: 10px;
+    align-items: stretch;
   }
 
   .img-preview {
-    flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 140px;
-    margin-bottom: 12px;
+    flex-direction: column;
+    gap: 6px;
+    min-height: 176px;
     padding: 8px;
     border-radius: 12px;
     background: var(--inner-bg);
@@ -161,12 +163,12 @@ function openInNewTab() {
 
     .preview-img {
       max-width: 100%;
-      max-height: 220px;
+      max-height: 240px;
       border-radius: 8px;
       cursor: zoom-in;
 
       :deep(img) {
-        max-height: 220px;
+        max-height: 240px;
       }
     }
 
@@ -181,13 +183,21 @@ function openInNewTab() {
     }
   }
 
-  .img-actions {
+  .img-form {
     display: flex;
+    flex-direction: column;
     gap: 10px;
 
-    .img-name {
-      flex: 1;
+    .form-actions {
+      display: flex;
+      gap: 10px;
     }
+  }
+}
+
+@media (max-width: 720px) {
+  .img-layout {
+    grid-template-columns: 1fr;
   }
 }
 </style>
