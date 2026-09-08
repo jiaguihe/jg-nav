@@ -60,16 +60,47 @@ const emit = defineEmits<{
   drop: [e: DragEvent];
 }>();
 
+// 加载失败过的站点域名记入本地黑名单，之后不再请求图标（如被墙站点直连必然超时）
+const BANNED_KEY = 'jg-favicon-banned';
+const MAX_BANNED = 50;
+
+function loadBannedHosts(): Set<string> {
+  try {
+    const list = JSON.parse(localStorage.getItem(BANNED_KEY) ?? '[]');
+    if (Array.isArray(list)) return new Set(list.filter((h) => typeof h === 'string'));
+  } catch {
+    /* 坏数据当空处理 */
+  }
+  return new Set();
+}
+
+function banHost(host: string) {
+  try {
+    const hosts = [...loadBannedHosts(), host].slice(-MAX_BANNED);
+    localStorage.setItem(BANNED_KEY, JSON.stringify(hosts));
+  } catch {
+    /* 存储不可用时静默 */
+  }
+}
+
 const faviconOf = (url: string) => {
   try {
-    return `${new URL(url).origin}/favicon.ico`;
+    const target = new URL(url);
+    if (loadBannedHosts().has(target.host)) return defaultImg;
+    return `${target.origin}/favicon.ico`;
   } catch {
     return defaultImg;
   }
 };
 
 const onImgError = (e: Event) => {
-  (e.target as HTMLImageElement).src = defaultImg;
+  const img = e.target as HTMLImageElement;
+  try {
+    banHost(new URL(img.src).host);
+  } catch {
+    /* 非法 src 直接兜底 */
+  }
+  img.src = defaultImg;
 };
 </script>
 
