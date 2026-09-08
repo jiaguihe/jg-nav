@@ -60,7 +60,14 @@ const emit = defineEmits<{
   drop: [e: DragEvent];
 }>();
 
-// 加载失败过的站点域名记入本地黑名单，之后不再请求图标（如被墙站点直连必然超时）
+// 图标排除名单：命中域名直接用占位图，不发起请求（直连不可达的站点每次都会超时报错）
+const ICON_EXCLUDED_HOSTS = ['google.com'];
+
+function isIconExcluded(host: string): boolean {
+  return ICON_EXCLUDED_HOSTS.some((h) => host === h || host.endsWith(`.${h}`));
+}
+
+// 加载失败过的站点域名记入本地黑名单，之后不再请求图标
 const BANNED_KEY = 'jg-favicon-banned';
 const MAX_BANNED = 50;
 
@@ -86,7 +93,9 @@ function banHost(host: string) {
 const faviconOf = (url: string) => {
   try {
     const target = new URL(url);
-    if (loadBannedHosts().has(target.host)) return defaultImg;
+    if (isIconExcluded(target.host) || loadBannedHosts().has(target.host)) {
+      return defaultImg;
+    }
     return `${target.origin}/favicon.ico`;
   } catch {
     return defaultImg;
