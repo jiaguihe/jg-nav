@@ -2,7 +2,10 @@
   <div class="search-bar">
     <el-dropdown trigger="click" @command="handleEngineChange">
       <div class="engine-chip" :title="`当前：${currentEngine.name}（Tab 切换）`">
-        <img :src="currentEngine.icon" alt="" @error="onIconError" />
+        <img v-if="currentEngine.icon" :src="currentEngine.icon" alt="" @error="onIconError" />
+        <span v-else class="engine-letter" :style="{ color: currentEngine.color }">
+          {{ currentEngine.name[0] }}
+        </span>
         <span class="engine-name">{{ currentEngine.name }}</span>
       </div>
       <template #dropdown>
@@ -12,7 +15,10 @@
             :key="engine.key"
             :command="engine.key"
           >
-            <img class="engine-menu-icon" :src="engine.icon" alt="" />
+            <img v-if="engine.icon" class="engine-menu-icon" :src="engine.icon" alt="" />
+            <span v-else class="engine-menu-letter" :style="{ color: engine.color }">
+              {{ engine.name[0] }}
+            </span>
             {{ engine.name }}
           </el-dropdown-item>
         </el-dropdown-menu>
@@ -43,13 +49,15 @@ interface Engine {
   key: string;
   name: string;
   url: string;
+  /** 远程图标地址；为空时渲染文字徽标（Google 直连不可达，不发请求） */
   icon: string;
+  color?: string;
 }
 
 const engines: Engine[] = [
   { key: 'bing', name: 'Bing', url: 'https://www.bing.com/search?q=', icon: 'https://www.bing.com/favicon.ico' },
   { key: 'baidu', name: '百度', url: 'https://www.baidu.com/s?wd=', icon: 'https://www.baidu.com/favicon.ico' },
-  { key: 'google', name: 'Google', url: 'https://www.google.com/search?q=', icon: 'https://www.google.com/favicon.ico' },
+  { key: 'google', name: 'Google', url: 'https://www.google.com/search?q=', icon: '', color: '#4285f4' },
   { key: 'github', name: 'GitHub', url: 'https://github.com/search?q=', icon: 'https://github.com/favicon.ico' },
   { key: 'bilibili', name: 'B站', url: 'https://search.bilibili.com/all?keyword=', icon: 'https://www.bilibili.com/favicon.ico' },
   { key: 'mdn', name: 'MDN', url: 'https://developer.mozilla.org/zh-CN/search?q=', icon: 'https://developer.mozilla.org/favicon.ico' }
@@ -110,6 +118,17 @@ onUnmounted(() => window.removeEventListener('keydown', onGlobalKeydown));
   object-fit: contain;
 }
 
+.engine-menu-letter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
 .search-bar {
   display: flex;
   align-items: center;
@@ -146,6 +165,16 @@ onUnmounted(() => window.removeEventListener('keydown', onGlobalKeydown));
       height: 16px;
       border-radius: 3px;
       object-fit: contain;
+    }
+
+    .engine-letter {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px;
+      height: 16px;
+      font-size: 13px;
+      font-weight: 700;
     }
 
     .engine-name {
