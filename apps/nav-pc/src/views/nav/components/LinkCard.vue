@@ -24,6 +24,8 @@
       :src="faviconOf(link.url)"
       alt=""
       class="card-favicon"
+      loading="lazy"
+      decoding="async"
       @error="onImgError"
     />
     <div class="card-name" :title="link.description">{{ link.description }}</div>

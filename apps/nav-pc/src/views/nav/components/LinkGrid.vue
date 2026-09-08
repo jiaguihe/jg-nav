@@ -79,7 +79,7 @@
     </template>
 
     <div v-else class="login-tip glass-panel">
-      <el-link :underline="false" @click="openLogin">登录后管理你的网址收藏</el-link>
+      <el-link underline="never" @click="openLogin">登录后管理你的网址收藏</el-link>
     </div>
 
     <LinkEditDialog

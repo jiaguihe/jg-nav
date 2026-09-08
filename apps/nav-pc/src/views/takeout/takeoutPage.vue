@@ -62,7 +62,7 @@
     </template>
 
     <div v-else class="login-tip glass-panel">
-      <el-link :underline="false" @click="openLogin">登录后开始记录你的外卖档案</el-link>
+      <el-link underline="never" @click="openLogin">登录后开始记录你的外卖档案</el-link>
     </div>
 
     <ShopEditDialog v-model="shopEditVisible" :shop="editingShop" />

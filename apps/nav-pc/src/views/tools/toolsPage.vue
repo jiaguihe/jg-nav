@@ -60,7 +60,7 @@
             />
           </KeepAlive>
           <div v-if="expandedTool.requiresLogin && !userStore.user" class="login-tip">
-            <el-link :underline="false" @click="openLogin">登录后使用{{ expandedTool.label }}</el-link>
+            <el-link underline="never" @click="openLogin">登录后使用{{ expandedTool.label }}</el-link>
           </div>
         </div>
       </template>
@@ -90,7 +90,7 @@
 
         <component :is="tool.component" v-if="!tool.requiresLogin || userStore.user" />
         <div v-else class="login-tip">
-          <el-link :underline="false" @click="openLogin">登录后使用{{ tool.label }}</el-link>
+          <el-link underline="never" @click="openLogin">登录后使用{{ tool.label }}</el-link>
         </div>
       </div>
     </div>

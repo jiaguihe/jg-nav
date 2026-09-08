@@ -54,7 +54,7 @@
 
     <div v-if="doneCount > 0" class="todo-footer">
       已完成 {{ doneCount }} 项
-      <el-link type="primary" :underline="false" @click="handleClearDone">
+      <el-link type="primary" underline="never" @click="handleClearDone">
         清除已完成
       </el-link>
     </div>
