@@ -35,6 +35,7 @@
       v-model="dialogVisible"
       :title="editing ? '编辑便签' : '新便签'"
       width="440"
+      append-to-body
       @closed="draft = ''"
     >
       <el-input

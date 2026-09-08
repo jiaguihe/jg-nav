@@ -41,7 +41,8 @@
       </div>
     </div>
 
-    <el-dialog v-model="dialogVisible" title="添加纪念日" width="420" @closed="resetForm">
+    <!-- append-to-body：卡片 fade-up 动画的 transform 会把 fixed 遮罩困在卡片内 -->
+    <el-dialog v-model="dialogVisible" title="添加纪念日" width="420" append-to-body @closed="resetForm">
       <el-form label-position="top" @submit.prevent>
         <el-form-item label="名称" required>
           <el-input v-model="form.name" placeholder="例如：国庆假期" maxlength="50" />

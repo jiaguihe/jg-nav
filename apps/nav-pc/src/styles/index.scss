@@ -163,6 +163,8 @@ html.dark .el-drawer {
 }
 
 // 卡片入场：列表错落上浮
+// to 帧用 none 而非 translateY(0)：fill-mode both 会保留末帧 transform，
+// 残留的 transform 会把面板内 fixed 定位的弹窗遮罩困在卡片里
 @keyframes fade-up {
   from {
     opacity: 0;
@@ -170,7 +172,7 @@ html.dark .el-drawer {
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: none;
   }
 }
 
