@@ -6,7 +6,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 
 defineOptions({ name: 'WeatherWidget' });
 
@@ -103,7 +103,14 @@ async function load() {
   }
 }
 
-onMounted(load);
+// 挂载时加载一次，之后每半小时自动刷新（页面长开天气也不至于停在早上的值）
+onMounted(() => {
+  load();
+  refreshTimer = window.setInterval(load, CACHE_TTL);
+});
+
+let refreshTimer: number | undefined;
+onUnmounted(() => window.clearInterval(refreshTimer));
 </script>
 
 <style lang="scss" scoped>

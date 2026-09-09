@@ -50,9 +50,12 @@
 
     <main class="page-content app-scroll">
       <RouterView v-slot="{ Component }">
-        <Transition name="page" mode="out-in">
-          <component :is="Component" />
-        </Transition>
+        <!-- KeepAlive 缓存三个页面：来回切 tab 不丢页面内输入状态 -->
+        <KeepAlive include="NavPage,TakeoutPage,ToolsPage">
+          <Transition name="page" mode="out-in">
+            <component :is="Component" />
+          </Transition>
+        </KeepAlive>
       </RouterView>
     </main>
 

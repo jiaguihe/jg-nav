@@ -12,7 +12,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, onActivated, onDeactivated } from 'vue';
 import dayjs from 'dayjs';
 import 'dayjs/locale/zh-cn';
 
@@ -22,15 +22,24 @@ const now = ref(dayjs());
 const colonHidden = ref(false);
 let timer: number | undefined;
 
-onMounted(() => {
-  // 每秒走字（冒号呼吸闪烁），时钟更有"活着"的感觉
+// 每秒走字（冒号呼吸闪烁），时钟更有"活着"的感觉
+function start() {
+  now.value = dayjs();
   timer = window.setInterval(() => {
     now.value = dayjs();
     colonHidden.value = now.value.second() % 2 === 1;
   }, 1000);
-});
+}
 
+onMounted(start);
 onUnmounted(() => window.clearInterval(timer));
+
+// 页面被 KeepAlive 缓存切走时停表，回来时对时再走
+onActivated(() => {
+  window.clearInterval(timer);
+  start();
+});
+onDeactivated(() => window.clearInterval(timer));
 </script>
 
 <style lang="scss" scoped>

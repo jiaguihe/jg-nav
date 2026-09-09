@@ -221,6 +221,11 @@ function handleTogglePin(link: LinkVO) {
 }
 
 function handleOpenLink(link: LinkVO) {
+  // 仅放行 http/https，防御 javascript: 之类伪协议被存进收藏
+  if (!/^https?:\/\//i.test(link.url.trim())) {
+    ElMessage.warning('链接不是 http/https 地址，无法打开');
+    return;
+  }
   // 打开即打卡，静默不阻塞新窗口
   clickLink(link.id).catch(() => {});
   window.open(link.url, '_blank');
