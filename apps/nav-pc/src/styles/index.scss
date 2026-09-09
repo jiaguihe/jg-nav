@@ -189,9 +189,11 @@ html.dark .el-drawer {
     transform 0.18s ease;
 }
 
+// enter 起始帧向上偏移：页面根元素 min-height:100% 正好填满滚动容器，
+// 向下偏移会让整页瞬时向下溢出，路由切换时滚动条闪现
 .page-enter-from {
   opacity: 0;
-  transform: translateY(10px);
+  transform: translateY(-10px);
 }
 
 .page-leave-to {
