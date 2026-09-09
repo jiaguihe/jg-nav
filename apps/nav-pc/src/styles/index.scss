@@ -162,13 +162,14 @@ html.dark .el-drawer {
   color: var(--text-3);
 }
 
-// 卡片入场：列表错落上浮
+// 卡片入场：列表错落入场
+// from 帧向上偏移：向下偏移会在动画期间让页面底部瞬时溢出，滚动条闪现
 // to 帧用 none 而非 translateY(0)：fill-mode both 会保留末帧 transform，
 // 残留的 transform 会把面板内 fixed 定位的弹窗遮罩困在卡片里
 @keyframes fade-up {
   from {
     opacity: 0;
-    transform: translateY(14px);
+    transform: translateY(-14px);
   }
   to {
     opacity: 1;
